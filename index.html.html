@@ -78,6 +78,12 @@
             font-weight: bold;
         }
 
+        .score-indicator {
+            font-size: 0.8rem;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
         .hearts {
             font-size: 1rem;
             letter-spacing: 2px;
@@ -98,7 +104,6 @@
             touch-action: none;
         }
 
-        /* Управление снизу */
         .controls {
             display: flex;
             justify-content: space-between;
@@ -147,7 +152,6 @@
             font-size: 1.05rem;
         }
 
-        /* Экраны и скромное, стильное Меню */
         .screen {
             display: none;
             position: absolute;
@@ -200,7 +204,6 @@
             margin-top: 10px;
         }
 
-        /* Выбор уровней (скромный компактный список) */
         .level-grid {
             display: grid;
             grid-template-columns: repeat(1, 1fr);
@@ -253,6 +256,7 @@
             <h1 id="levelTitle">Приключение Шахины</h1>
         </div>
         <div class="hud-info">
+            <div class="score-indicator" id="scoreDisplay">💎 0</div>
             <div class="level-indicator" id="levelIndicator">Ур. 1/5</div>
             <div class="hearts" id="heartsDisplay">❤️❤️❤️</div>
         </div>
@@ -261,18 +265,15 @@
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
 
-        <!-- Скромное и аккуратное главное меню -->
         <div id="main-menu" class="screen" style="display: flex;">
             <h2>👑 Выбор Главы</h2>
             <p>Выбери уровень, чтобы начать прохождение:</p>
-            <div class="level-grid" id="levelGrid">
-                <!-- Заполняется динамически -->
-            </div>
+            <div class="level-grid" id="levelGrid"></div>
         </div>
 
         <div id="win-screen" class="screen">
             <h2>Ура, победа! 🎉</h2>
-            <p>Ты прошла все 5 глав и добралась до замка! Шахина — самая крутая принцесса ❤️</p>
+            <p id="winScoreText">Ты прошла все главы! Шахина — самая крутая принцесса ❤️</p>
             <button class="restart-btn" id="winRestart">В меню</button>
         </div>
 
@@ -314,11 +315,13 @@
 
         let currentLevel = 1;
         let lives = 3;
+        let score = 0;
         let isInMenu = true;
         let gameWon = false;
         let gameOver = false;
         let levelCleared = false;
         let invulnerableTimer = 0;
+        let floatingTexts = [];
 
         const player = {
             x: 80,
@@ -338,15 +341,45 @@
         let flag = { x: 0, y: 0, width: 50, height: 100 };
         let levelLength = 7000;
 
+        // Темы с уникальными фонами и врагами для каждого уровня
         const levelThemes = {
-            1: { name: "Глава 1: Зеленые луга", icon: "🌸", sky1: "#2b2d42", sky2: "#3a86ff", sky3: "#8338ec", ground1: "#1b4332", ground2: "#2d6a4f", brick: "#cc5803" },
-            2: { name: "Глава 2: Пустынный каньон", icon: "🦂", sky1: "#4a154b", sky2: "#e07a5f", sky3: "#f4a261", ground1: "#6b705c", ground2: "#a5a58d", brick: "#bc6c25" },
-            3: { name: "Глава 3: Темнолесье", icon: "🦇", sky1: "#0b090a", sky2: "#161a1d", sky3: "#370617", ground1: "#212529", ground2: "#343a40", brick: "#7209b7" },
-            4: { name: "Глава 4: Магический грот", icon: "🍄", sky1: "#03071e", sky2: "#370617", sky3: "#6a040f", ground1: "#132a13", ground2: "#31572c", brick: "#9d0208" },
-            5: { name: "Глава 5: Небесный замок", icon: "🤖", sky1: "#001d3d", sky2: "#003566", sky3: "#ffc300", ground1: "#000814", ground2: "#001d3d", brick: "#ff0054" }
+            1: { 
+                name: "Глава 1: Зеленые луга", 
+                icon: "🌳", 
+                sky1: "#2b2d42", sky2: "#3a86ff", sky3: "#8338ec", 
+                ground1: "#1b4332", ground2: "#2d6a4f", brick: "#cc5803",
+                bgType: "trees" // Зеленые холмы и деревья
+            },
+            2: { 
+                name: "Глава 2: Пустынный каньон", 
+                icon: "🏜️", 
+                sky1: "#4a154b", sky2: "#e07a5f", sky3: "#f4a261", 
+                ground1: "#6b705c", ground2: "#a5a58d", brick: "#bc6c25",
+                bgType: "canyon" // Скалы и песчаные барханы
+            },
+            3: { 
+                name: "Глава 3: Темный замок", 
+                icon: "🏰", 
+                sky1: "#0b090a", sky2: "#161a1d", sky3: "#370617", 
+                ground1: "#212529", ground2: "#343a40", brick: "#7209b7",
+                bgType: "castle" // Каменные башни замка
+            },
+            4: { 
+                name: "Глава 4: Магический лес", 
+                icon: "🍄", 
+                sky1: "#03071e", sky2: "#370617", sky3: "#6a040f", 
+                ground1: "#132a13", ground2: "#31572c", brick: "#9d0208",
+                bgType: "magic_forest" // Светящиеся магические деревья и грибы
+            },
+            5: { 
+                name: "Глава 5: Небесный город", 
+                icon: "🛸", 
+                sky1: "#001d3d", sky2: "#003566", sky3: "#ffc300", 
+                ground1: "#000814", ground2: "#001d3d", brick: "#ff0054",
+                bgType: "cyber_city" // Футуристический город будущего
+            }
         };
 
-        // Заполняем скромное меню карточками
         const levelGrid = document.getElementById('levelGrid');
         for (let i = 1; i <= 5; i++) {
             const card = document.createElement('div');
@@ -368,9 +401,11 @@
         function startLevel() {
             isInMenu = false;
             lives = 3;
+            score = 0;
             gameWon = false;
             gameOver = false;
             levelCleared = false;
+            floatingTexts = [];
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('win-screen').style.display = 'none';
             document.getElementById('lose-screen').style.display = 'none';
@@ -436,17 +471,18 @@
 
             document.getElementById('levelTitle').innerText = levelThemes[currentLevel].name;
             document.getElementById('levelIndicator').innerText = `Ур. ${currentLevel}/5`;
-            updateHeartsUI();
+            updateHUD();
         }
 
         resizeCanvas();
 
-        function updateHeartsUI() {
+        function updateHUD() {
             let hStr = '';
             for (let i = 0; i < 3; i++) {
                 hStr += i < lives ? '❤️' : '🖤';
             }
             document.getElementById('heartsDisplay').innerText = hStr;
+            document.getElementById('scoreDisplay').innerText = `💎 ${score}`;
         }
 
         const keys = {};
@@ -505,6 +541,13 @@
 
             if (invulnerableTimer > 0) invulnerableTimer--;
 
+            // Обновление всплывающих бонусов
+            floatingTexts.forEach((ft, index) => {
+                ft.y -= 1.2;
+                ft.alpha -= 0.02;
+                if (ft.alpha <= 0) floatingTexts.splice(index, 1);
+            });
+
             player.dx = 0;
             if (keys['ArrowLeft'] || keys['KeyA']) player.dx = -player.speed;
             if (keys['ArrowRight'] || keys['KeyD']) player.dx = player.speed;
@@ -549,6 +592,7 @@
                 }
             });
 
+            // Обработка врагов и бонусов за убийство
             enemies.forEach(en => {
                 en.x += en.speed * en.dir;
                 if (en.x > en.maxX || en.x < en.minX) en.dir *= -1;
@@ -560,12 +604,16 @@
                     player.y + player.height > en.y
                 ) {
                     if (player.dy > 0 && player.y + player.height - player.dy <= en.y + 14) {
+                        // Убийство врага с бонусом!
                         enemies.splice(enemies.indexOf(en), 1);
                         player.dy = -10;
+                        score += 100;
+                        updateHUD();
+                        floatingTexts.push({ x: en.x, y: en.y - 10, text: "+100 💎", alpha: 1.0 });
                     } else {
                         if (invulnerableTimer === 0) {
                             lives--;
-                            updateHeartsUI();
+                            updateHUD();
                             invulnerableTimer = 60;
                             player.dy = -8;
                             if (lives <= 0) {
@@ -579,7 +627,7 @@
 
             if (player.y > VIEW_HEIGHT + 100) {
                 lives = 0;
-                updateHeartsUI();
+                updateHUD();
                 gameOver = true;
                 document.getElementById('lose-screen').style.display = 'flex';
             }
@@ -592,10 +640,11 @@
             ) {
                 if (currentLevel < 5) {
                     levelCleared = true;
-                    document.getElementById('nextLevelText').innerText = `Ты успешно прошла главу ${currentLevel}! Впереди новый мир.`;
+                    document.getElementById('nextLevelText').innerText = `Ты успешно прошла главу ${currentLevel}! Твой счет: ${score} очков.`;
                     document.getElementById('next-level-screen').style.display = 'flex';
                 } else {
                     gameWon = true;
+                    document.getElementById('winScoreText').innerText = `Ты прошла все 5 глав! Итоговый счет: ${score} очков. Шахина — абсолютная победительница ❤️👑`;
                     document.getElementById('win-screen').style.display = 'flex';
                 }
             }
@@ -624,31 +673,70 @@
             ctx.save();
             ctx.translate(-cameraX, 0);
 
-            // Текстура Замка на заднем плане (параллакс)
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-            for (let bx = 200; bx < levelLength; bx += 800) {
-                // Башни замка сзади
-                ctx.fillRect(bx, VIEW_HEIGHT - 240, 90, 180);
-                ctx.beginPath();
-                ctx.moveTo(bx - 10, VIEW_HEIGHT - 240);
-                ctx.lineTo(bx + 45, VIEW_HEIGHT - 300);
-                ctx.lineTo(bx + 100, VIEW_HEIGHT - 240);
-                ctx.fill();
-                // Окошки замка
-                ctx.fillStyle = 'rgba(255, 255, 100, 0.15)';
-                ctx.fillRect(bx + 20, VIEW_HEIGHT - 210, 16, 25);
-                ctx.fillRect(bx + 54, VIEW_HEIGHT - 210, 16, 25);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-            }
-
-            // Текстурные облака
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
-            for (let i = 100; i < levelLength; i += 280) {
-                ctx.beginPath();
-                ctx.arc(i, 120, 45, 0, Math.PI * 2);
-                ctx.arc(i + 40, 100, 60, 0, Math.PI * 2);
-                ctx.arc(i + 95, 120, 45, 0, Math.PI * 2);
-                ctx.fill();
+            // УНИКАЛЬНЫЙ ЗАДНИЙ ФОН ДЛЯ КАЖДОЙ ГЛАВЫ
+            const bgType = theme.bgType;
+            if (bgType === "trees") {
+                // Глава 1: Зеленые холмы и деревья
+                ctx.fillStyle = 'rgba(45, 106, 79, 0.4)';
+                for (let hx = 0; hx < levelLength; hx += 350) {
+                    ctx.beginPath();
+                    ctx.arc(hx, VIEW_HEIGHT - 65, 180, Math.PI, 0, false);
+                    ctx.fill();
+                }
+                ctx.fillStyle = 'rgba(82, 183, 136, 0.25)';
+                for (let dx = 100; dx < levelLength; dx += 280) {
+                    ctx.fillRect(dx, VIEW_HEIGHT - 220, 24, 155);
+                    ctx.beginPath();
+                    ctx.arc(dx + 12, VIEW_HEIGHT - 220, 50, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            } else if (bgType === "canyon") {
+                // Глава 2: Пустынный каньон и скалы
+                ctx.fillStyle = 'rgba(188, 108, 37, 0.35)';
+                for (let cx = 50; cx < levelLength; cx += 400) {
+                    ctx.fillRect(cx, VIEW_HEIGHT - 280, 120, 215);
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 30, VIEW_HEIGHT - 280);
+                    ctx.lineTo(cx + 60, VIEW_HEIGHT - 350);
+                    ctx.lineTo(cx + 150, VIEW_HEIGHT - 280);
+                    ctx.fill();
+                }
+            } else if (bgType === "castle") {
+                // Глава 3: Темный замок
+                ctx.fillStyle = 'rgba(114, 9, 183, 0.25)';
+                for (let bx = 150; bx < levelLength; bx += 500) {
+                    ctx.fillRect(bx, VIEW_HEIGHT - 320, 140, 255);
+                    // Зубцы стен
+                    for (let zx = bx; zx < bx + 140; zx += 30) {
+                        ctx.fillRect(zx, VIEW_HEIGHT - 345, 18, 25);
+                    }
+                    // Желтые светящиеся окна
+                    ctx.fillStyle = 'rgba(255, 214, 10, 0.2)';
+                    ctx.fillRect(bx + 25, VIEW_HEIGHT - 250, 25, 45);
+                    ctx.fillRect(bx + 90, VIEW_HEIGHT - 250, 25, 45);
+                    ctx.fillStyle = 'rgba(114, 9, 183, 0.25)';
+                }
+            } else if (bgType === "magic_forest") {
+                // Глава 4: Магический лес со светящимися грибами
+                ctx.fillStyle = 'rgba(247, 37, 133, 0.2)';
+                for (let fx = 100; fx < levelLength; fx += 320) {
+                    ctx.fillRect(fx + 20, VIEW_HEIGHT - 240, 20, 175);
+                    // Светящаяся крона
+                    ctx.beginPath();
+                    ctx.arc(fx + 30, VIEW_HEIGHT - 240, 65, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            } else if (bgType === "cyber_city") {
+                // Глава 5: Небесный футуристический город
+                ctx.fillStyle = 'rgba(0, 53, 102, 0.5)';
+                for (let rx = 80; rx < levelLength; rx += 380) {
+                    ctx.fillRect(rx, VIEW_HEIGHT - 350, 90, 285);
+                    // Неоновые линии
+                    ctx.fillStyle = 'rgba(255, 0, 84, 0.4)';
+                    ctx.fillRect(rx + 10, VIEW_HEIGHT - 300, 70, 6);
+                    ctx.fillRect(rx + 10, VIEW_HEIGHT - 200, 70, 6);
+                    ctx.fillStyle = 'rgba(0, 53, 102, 0.5)';
+                }
             }
 
             // Платформы
@@ -683,13 +771,13 @@
                 }
             });
 
-            // Уникальные враги (новые модели)
+            // Уникальные враги для каждой главы
             enemies.forEach(en => {
                 const ex = en.x;
                 const ey = en.y;
 
                 if (en.type === 1) {
-                    // Зубастый Цветок
+                    // Глава 1: Зубастый Цветок
                     ctx.fillStyle = '#d90429';
                     ctx.beginPath();
                     ctx.arc(ex + 17, ey + 16, 16, 0, Math.PI * 2);
@@ -703,7 +791,7 @@
                     ctx.fillRect(ex + 10, ey + 12, 2, 3);
                     ctx.fillRect(ex + 22, ey + 12, 2, 3);
                 } else if (en.type === 2) {
-                    // Скорпион
+                    // Глава 2: Скорпион
                     ctx.fillStyle = '#bc6c25';
                     ctx.fillRect(ex + 4, ey + 12, 26, 16);
                     ctx.fillStyle = '#dda15e';
@@ -715,7 +803,7 @@
                     ctx.quadraticCurveTo(ex + 38, ey, ex + 32, ey - 10);
                     ctx.stroke();
                 } else if (en.type === 3) {
-                    // Летучая мышь
+                    // Глава 3: Летучая мышь
                     ctx.fillStyle = '#3a0ca3';
                     ctx.beginPath();
                     ctx.arc(ex + 17, ey + 16, 12, 0, Math.PI * 2);
@@ -735,7 +823,7 @@
                     ctx.fillRect(ex + 11, ey + 12, 3, 3);
                     ctx.fillRect(ex + 20, ey + 12, 3, 3);
                 } else if (en.type === 4) {
-                    // Злой гриб
+                    // Глава 4: Злой гриб
                     ctx.fillStyle = '#7209b7';
                     ctx.beginPath();
                     ctx.arc(ex + 17, ey + 12, 16, Math.PI, 0, false);
@@ -746,7 +834,7 @@
                     ctx.fillRect(ex + 10, ey + 4, 4, 4);
                     ctx.fillRect(ex + 20, ey + 6, 5, 4);
                 } else {
-                    // Робо-бот с лазером
+                    // Глава 5: Робо-бот с лазером
                     ctx.fillStyle = '#212529';
                     ctx.fillRect(ex + 4, ey + 6, 26, 22);
                     ctx.fillStyle = '#ff0054';
@@ -756,6 +844,13 @@
                     ctx.fillStyle = '#6c757d';
                     ctx.fillRect(ex + 2, ey + 24, 30, 6);
                 }
+            });
+
+            // Отрисовка всплывающих бонусов за убийство врагов
+            floatingTexts.forEach(ft => {
+                ctx.fillStyle = `rgba(74, 222, 128, ${ft.alpha})`;
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText(ft.text, ft.x, ft.y);
             });
 
             // Финишный замок
