@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Приключение Шахины: Новая Эра 💖</title>
+    <title>Приключение Шахины 💖</title>
     <style>
         * {
             box-sizing: border-box;
@@ -58,7 +58,6 @@
             cursor: pointer;
             font-weight: bold;
             box-shadow: 0 3px 12px rgba(255, 112, 166, 0.4);
-            transition: transform 0.1s;
         }
         .menu-btn-small:active { transform: scale(0.92); }
 
@@ -67,7 +66,6 @@
             font-size: 0.9rem;
             color: #ff8fab;
             text-shadow: 0 0 10px rgba(255, 143, 171, 0.5);
-            letter-spacing: 0.5px;
         }
 
         .hud-info {
@@ -80,20 +78,17 @@
             font-size: 0.85rem;
             color: #ffb703;
             font-weight: bold;
-            text-shadow: 0 0 8px rgba(255, 183, 3, 0.4);
         }
 
         .score-indicator {
             font-size: 0.85rem;
             color: #4ade80;
             font-weight: bold;
-            text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
         }
 
         .hearts {
             font-size: 1rem;
             letter-spacing: 3px;
-            filter: drop-shadow(0 0 6px rgba(255, 71, 87, 0.6));
         }
 
         #game-container {
@@ -121,7 +116,6 @@
             z-index: 10;
             flex-shrink: 0;
             border-top: 2px solid rgba(255, 112, 166, 0.3);
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.6);
         }
 
         .dir-group {
@@ -145,14 +139,12 @@
             flex: 1;
             height: 70px;
             touch-action: none;
-            transition: background 0.1s, transform 0.1s;
         }
 
         .btn:active, .btn.pressed {
             background: rgba(255, 112, 166, 0.4);
             border-color: #ff3366;
             transform: scale(0.93);
-            box-shadow: 0 0 15px rgba(255, 51, 102, 0.6);
         }
 
         .jump-btn {
@@ -161,7 +153,6 @@
             flex: 1;
             height: 70px;
             font-size: 1.1rem;
-            letter-spacing: 0.5px;
         }
 
         .screen {
@@ -182,7 +173,6 @@
             overflow-y: auto;
         }
 
-        /* УЛУЧШЕННОЕ ГЛАВНОЕ МЕНЮ */
         #main-menu {
             display: flex;
             background: radial-gradient(circle at center, #231942 0%, #0b090a 100%);
@@ -202,18 +192,24 @@
         }
 
         #main-menu h2 {
-            font-size: 1.6rem;
-            margin: 5px 0 5px 0;
+            font-size: 1.5rem;
+            margin: 5px 0;
             background: linear-gradient(135deg, #ff70a6, #ffb703);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 15px rgba(255, 112, 166, 0.3);
         }
 
-        #main-menu p {
-            font-size: 0.85rem;
-            color: #b5b5c3;
-            margin-bottom: 20px;
+        .welcome-msg {
+            font-size: 0.9rem;
+            color: #ffb5a7;
+            margin-bottom: 15px;
+            font-weight: 500;
+            max-width: 320px;
+            line-height: 1.4;
+            background: rgba(255, 181, 167, 0.08);
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 181, 167, 0.3);
         }
 
         .level-grid {
@@ -237,14 +233,12 @@
             align-items: center;
             justify-content: space-between;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .level-card:hover, .level-card:active {
             background: rgba(255, 112, 166, 0.15);
             border-color: #ff70a6;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 112, 166, 0.3);
         }
 
         .level-card h3 {
@@ -260,7 +254,6 @@
 
         .level-card .icon-preview {
             font-size: 1.6rem;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
         }
 
         .screen h2 {
@@ -289,12 +282,11 @@
             font-weight: bold;
             box-shadow: 0 6px 20px rgba(255, 51, 102, 0.5);
             pointer-events: auto;
-            transition: transform 0.1s;
         }
         .restart-btn:active { transform: scale(0.95); }
 
         .sound-toggle {
-            margin-top: 15px;
+            margin-top: 10px;
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.2);
             color: #fff;
@@ -323,28 +315,28 @@
         <canvas id="gameCanvas"></canvas>
 
         <div id="main-menu" class="screen">
-            <div class="menu-logo">👑✨</div>
+            <div class="menu-logo">👑💖</div>
             <h2>Приключение Шахины</h2>
-            <p>Выбери главу и отправься в незабываемое путешествие!</p>
+            <div class="welcome-msg">«Шахина, ты самая умная, красивая и невероятная! Эта игра создана специально для тебя. Покажи всем, на что ты способна! ✨»</div>
             <div class="level-grid" id="levelGrid"></div>
-            <button class="sound-toggle" id="soundToggleBtn">🔊 Звук: Вкл</button>
+            <button class="sound-toggle" id="soundToggleBtn">🎵 Музыка: Вкл</button>
         </div>
 
         <div id="win-screen" class="screen">
-            <h2>Ура, победа! 🎉</h2>
-            <p id="winScoreText">Ты прошла все главы! Шахина — самая крутая принцесса ❤️</p>
+            <h2>Великолепно! 🎉</h2>
+            <p id="winScoreText">Ты прошла все главы! Шахина — настоящая королева и победительница! Мы гордимся тобой ❤️👑</p>
             <button class="restart-btn" id="winRestart">В главное меню</button>
         </div>
 
         <div id="next-level-screen" class="screen">
-            <h2>Глава пройдена! ✨</h2>
-            <p id="nextLevelText">Готова к следующему испытанию?</p>
+            <h2>Умничка! ✨</h2>
+            <p id="nextLevelText">Глава пройдена! Ты двигаешься просто великолепно. Продолжаем путь?</p>
             <button class="restart-btn" id="nextLevelBtn">Следующий уровень</button>
         </div>
 
         <div id="lose-screen" class="screen">
-            <h2>Ой, сердечки кончились! 🙈</h2>
-            <p>Попробуй еще раз, у тебя обязательно получится!</p>
+            <h2>Не сдавайся, Шахина! 💪</h2>
+            <p>Ты у нас самая сильная! Маленькая неудача — это просто шаг к победе. Попробуй ещё раз!</p>
             <button class="restart-btn" id="loseRestart">Повторить попытку</button>
         </div>
     </div>
@@ -358,7 +350,7 @@
     </div>
 
     <script>
-        // --- АУДИО СИСТЕМА (ЗВУКИ И МУЗЫКА) ---
+        // --- УЛУЧШЕННАЯ МУЗЫКА И МЯГКИЕ ЗВУКИ ---
         let soundEnabled = true;
         let audioCtx = null;
 
@@ -376,77 +368,86 @@
             initAudio();
             if (!audioCtx) return;
 
+            const now = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(audioCtx.destination);
 
-            const now = audioCtx.currentTime;
-
             if (type === 'jump') {
+                // Мягкий и приятный звук прыжка
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.exponentialRampToValueAtTime(400, now + 0.15);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.15);
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(440, now + 0.18);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.18);
                 osc.start(now);
-                osc.stop(now + 0.15);
+                osc.stop(now + 0.18);
             } else if (type === 'gem') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-                osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.3);
-                osc.start(now);
-                osc.stop(now + 0.3);
-            } else if (type === 'hit') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(120, now);
-                osc.frequency.linearRampToValueAtTime(40, now + 0.25);
-                gain.gain.setValueAtTime(0.3, now);
+                // Мелодичный звон кристалла
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(880, now + 0.08); // A5
+                gain.gain.setValueAtTime(0.15, now);
                 gain.gain.linearRampToValueAtTime(0, now + 0.25);
                 osc.start(now);
                 osc.stop(now + 0.25);
+            } else if (type === 'hit') {
+                // Аккуратный звук урона
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(80, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
             } else if (type === 'win') {
-                const notes = [440, 554.37, 659.25, 880];
-                notes.forEach((freq, idx) => {
+                // Победная нежная арпеджио-мелодия
+                const chord = [523.25, 659.25, 783.99, 1046.50];
+                chord.forEach((f, idx) => {
                     const o = audioCtx.createOscillator();
                     const g = audioCtx.createGain();
+                    o.type = 'sine';
                     o.connect(g);
                     g.connect(audioCtx.destination);
-                    o.frequency.setValueAtTime(freq, now + idx * 0.12);
-                    g.gain.setValueAtTime(0.2, now + idx * 0.12);
-                    g.gain.linearRampToValueAtTime(0, now + idx * 0.12 + 0.2);
-                    o.start(now + idx * 0.12);
-                    o.stop(now + idx * 0.12 + 0.2);
+                    o.frequency.setValueAtTime(f, now + idx * 0.1);
+                    g.gain.setValueAtTime(0.15, now + idx * 0.1);
+                    g.gain.linearRampToValueAtTime(0, now + idx * 0.1 + 0.25);
+                    o.start(now + idx * 0.1);
+                    o.stop(now + idx * 0.1 + 0.25);
                 });
             }
         }
 
-        // Фоновый эмбиент / музыкальный генератор
+        // Приятная фоновая музыкальная гармония (колыбельно-игровая)
         let musicInterval = null;
         function startBGM() {
             if (musicInterval) clearInterval(musicInterval);
-            const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
-            let noteIdx = 0;
+            // Красивая последовательность нот (пентатоника)
+            const songNotes = [329.63, 392.00, 440.00, 523.25, 587.33, 523.25, 440.00, 392.00];
+            let step = 0;
             musicInterval = setInterval(() => {
                 if (!soundEnabled || isInMenu) return;
                 initAudio();
                 if (!audioCtx) return;
+
+                const now = audioCtx.currentTime;
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
+                
                 osc.type = 'sine';
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-                const now = audioCtx.currentTime;
-                osc.frequency.setValueAtTime(melody[noteIdx], now);
-                gain.gain.setValueAtTime(0.04, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.3);
+
+                osc.frequency.setValueAtTime(songNotes[step], now);
+                gain.gain.setValueAtTime(0.03, now); // Очень тихая, ненавязчивая фоновая громкость
+                gain.gain.linearRampToValueAtTime(0, now + 0.4);
+
                 osc.start(now);
-                osc.stop(now + 0.3);
-                noteIdx = (noteIdx + 1) % melody.length;
-            }, 350);
+                osc.stop(now + 0.4);
+
+                step = (step + 1) % songNotes.length;
+            }, 450);
         }
 
         const canvas = document.getElementById('gameCanvas');
@@ -493,41 +494,11 @@
         let levelLength = 7000;
 
         const levelThemes = {
-            1: { 
-                name: "Глава 1: Зеленые луга", 
-                icon: "🌳", 
-                sky1: "#1b192e", sky2: "#2d3250", sky3: "#424769", 
-                ground1: "#1b4332", ground2: "#2d6a4f", brick: "#cc5803",
-                bgType: "trees" 
-            },
-            2: { 
-                name: "Глава 2: Пустынный каньон", 
-                icon: "🏜️", 
-                sky1: "#2b102f", sky2: "#5c3342", sky3: "#d97706", 
-                ground1: "#582f0e", ground2: "#7f4f24", brick: "#bc6c25",
-                bgType: "canyon" 
-            },
-            3: { 
-                name: "Глава 3: Темный замок", 
-                icon: "🏰", 
-                sky1: "#07050a", sky2: "#14101d", sky3: "#241734", 
-                ground1: "#1a1824", ground2: "#2a2738", brick: "#7209b7",
-                bgType: "castle" 
-            },
-            4: { 
-                name: "Глава 4: Магический лес", 
-                icon: "🍄", 
-                sky1: "#03071e", sky2: "#240046", sky3: "#3c096c", 
-                ground1: "#101d10", ground2: "#224222", brick: "#9d0208",
-                bgType: "magic_forest" 
-            },
-            5: { 
-                name: "Глава 5: Небесный город", 
-                icon: "🛸", 
-                sky1: "#000814", sky2: "#001d3d", sky3: "#003566", 
-                ground1: "#03071e", ground2: "#0f172a", brick: "#ff0054",
-                bgType: "cyber_city" 
-            }
+            1: { name: "Глава 1: Зеленые луга", icon: "🌳", sky1: "#1b192e", sky2: "#2d3250", sky3: "#424769", ground1: "#1b4332", ground2: "#2d6a4f", brick: "#cc5803", bgType: "trees" },
+            2: { name: "Глава 2: Пустынный каньон", icon: "🏜️", sky1: "#2b102f", sky2: "#5c3342", sky3: "#d97706", ground1: "#582f0e", ground2: "#7f4f24", brick: "#bc6c25", bgType: "canyon" },
+            3: { name: "Глава 3: Темный замок", icon: "🏰", sky1: "#07050a", sky2: "#14101d", sky3: "#241734", ground1: "#1a1824", ground2: "#2a2738", brick: "#7209b7", bgType: "castle" },
+            4: { name: "Глава 4: Магический лес", icon: "🍄", sky1: "#03071e", sky2: "#240046", sky3: "#3c096c", ground1: "#101d10", ground2: "#224222", brick: "#9d0208", bgType: "magic_forest" },
+            5: { name: "Глава 5: Небесный город", icon: "🛸", sky1: "#000814", sky2: "#001d3d", sky3: "#003566", ground1: "#03071e", ground2: "#0f172a", brick: "#ff0054", bgType: "cyber_city" }
         };
 
         const levelGrid = document.getElementById('levelGrid');
@@ -537,7 +508,7 @@
             card.innerHTML = `
                 <div>
                     <h3>${levelThemes[i].name}</h3>
-                    <span>Начать главу</span>
+                    <span>Начать главу для Шахины</span>
                 </div>
                 <div class="icon-preview">${levelThemes[i].icon}</div>
             `;
@@ -551,7 +522,7 @@
 
         document.getElementById('soundToggleBtn').addEventListener('click', () => {
             soundEnabled = !soundEnabled;
-            document.getElementById('soundToggleBtn').innerText = soundEnabled ? "🔊 Звук: Вкл" : "🔇 Звук: Выкл";
+            document.getElementById('soundToggleBtn').innerText = soundEnabled ? "🎵 Музыка: Вкл" : "🔇 Музыка: Выкл";
             if (soundEnabled) initAudio();
         });
 
@@ -702,7 +673,6 @@
 
             if (invulnerableTimer > 0) invulnerableTimer--;
 
-            // Обновление частиц
             particles.forEach((p, index) => {
                 p.x += p.vx;
                 p.y += p.vy;
@@ -710,7 +680,6 @@
                 if (p.alpha <= 0) particles.splice(index, 1);
             });
 
-            // Обновление всплывающих бонусов (+1 гем)
             floatingTexts.forEach((ft, index) => {
                 ft.y -= 1.2;
                 ft.alpha -= 0.02;
@@ -762,7 +731,6 @@
                 }
             });
 
-            // Обработка врагов и бонуса (+1 самоцвет)
             enemies.forEach(en => {
                 en.x += en.speed * en.dir;
                 if (en.x > en.maxX || en.x < en.minX) en.dir *= -1;
@@ -774,15 +742,13 @@
                     player.y + player.height > en.y
                 ) {
                     if (player.dy > 0 && player.y + player.height - player.dy <= en.y + 14) {
-                        // Убийство врага, бонус +1 кристалл
                         enemies.splice(enemies.indexOf(en), 1);
                         player.dy = -10;
-                        score += 1;
+                        score += 1; // +1 кристалл за врага
                         updateHUD();
                         playSound('gem');
                         floatingTexts.push({ x: en.x, y: en.y - 10, text: "+1 💎", alpha: 1.0 });
 
-                        // Эффект частиц
                         for (let i = 0; i < 8; i++) {
                             particles.push({
                                 x: en.x + 17,
@@ -826,11 +792,11 @@
                 playSound('win');
                 if (currentLevel < 5) {
                     levelCleared = true;
-                    document.getElementById('nextLevelText').innerText = `Ты успешно прошла главу ${currentLevel}! Собрано кристаллов: ${score}.`;
+                    document.getElementById('nextLevelText').innerText = `Шахина, ты блестяще прошла главу ${currentLevel}! Собрано кристаллов: ${score}. Ты великолепна!`;
                     document.getElementById('next-level-screen').style.display = 'flex';
                 } else {
                     gameWon = true;
-                    document.getElementById('winScoreText').innerText = `Ты прошла все 5 глав! Итоговый счет: ${score} кристаллов. Шахина — абсолютная победительница ❤️👑`;
+                    document.getElementById('winScoreText').innerText = `Ура! Все 5 глав позади! Шахина — самая умная, талантливая и потрясающая принцесса! Итоговый счет: ${score} 💎`;
                     document.getElementById('win-screen').style.display = 'flex';
                 }
             }
@@ -859,7 +825,6 @@
             ctx.save();
             ctx.translate(-cameraX, 0);
 
-            // ФОНОВЫЕ ДИСАЙНЫ С УЛУЧШЕННОЙ ГРАФИКОЙ
             const bgType = theme.bgType;
             if (bgType === "trees") {
                 ctx.fillStyle = 'rgba(45, 106, 79, 0.4)';
@@ -916,7 +881,6 @@
                 }
             }
 
-            // Платформы с тенями и красивой текстурой
             platforms.forEach(p => {
                 if (p.type === 'ground') {
                     ctx.fillStyle = theme.ground1;
@@ -948,7 +912,6 @@
                 }
             });
 
-            // Враги
             enemies.forEach(en => {
                 const ex = en.x;
                 const ey = en.y;
@@ -1018,7 +981,6 @@
                 }
             });
 
-            // Частицы уничтожения
             particles.forEach(pt => {
                 ctx.fillStyle = pt.color;
                 ctx.globalAlpha = pt.alpha;
@@ -1026,14 +988,12 @@
                 ctx.globalAlpha = 1.0;
             });
 
-            // Всплывающие тексты бонусов
             floatingTexts.forEach(ft => {
                 ctx.fillStyle = `rgba(74, 222, 128, ${ft.alpha})`;
                 ctx.font = 'bold 16px sans-serif';
                 ctx.fillText(ft.text, ft.x, ft.y);
             });
 
-            // Финиш
             ctx.fillStyle = '#ff70a6';
             ctx.fillRect(flag.x, flag.y, flag.width, flag.height);
             ctx.fillStyle = '#ff97b7';
@@ -1041,7 +1001,6 @@
             ctx.font = '42px sans-serif';
             ctx.fillText('💖', flag.x + 2, flag.y - 52);
 
-            // Шахина (улучшенный спрайт с тенью)
             if (invulnerableTimer === 0 || Math.floor(invulnerableTimer / 5) % 2 === 0) {
                 const px = player.x;
                 const py = player.y;
