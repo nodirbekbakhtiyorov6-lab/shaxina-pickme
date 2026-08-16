@@ -190,18 +190,18 @@
         const ctx = canvas.getContext('2d');
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
+            canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
+            setupPositions();
         }
         window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
 
         let gameWon = false;
         let gameOver = false;
 
         const player = {
             x: 80,
-            y: 100,
+            y: 0,
             width: 42,
             height: 60,
             speed: 5.5,
@@ -213,18 +213,18 @@
         };
 
         const platforms = [
-            { x: 0, y: 0, width: 3800, height: 40, type: 'ground' }, // Заполним через canvas height динамически
-            { x: 350, y: 160, width: 160, height: 24, type: 'brick' },
-            { x: 600, y: 240, width: 150, height: 24, type: 'brick' },
-            { x: 880, y: 160, width: 170, height: 24, type: 'brick' },
-            { x: 1150, y: 230, width: 160, height: 24, type: 'brick' },
-            { x: 1420, y: 150, width: 150, height: 24, type: 'brick' },
-            { x: 1700, y: 230, width: 170, height: 24, type: 'brick' },
-            { x: 1980, y: 150, width: 160, height: 24, type: 'brick' },
-            { x: 2250, y: 230, width: 150, height: 24, type: 'brick' },
-            { x: 2520, y: 150, width: 170, height: 24, type: 'brick' },
-            { x: 2820, y: 220, width: 180, height: 24, type: 'brick' },
-            { x: 3120, y: 150, width: 190, height: 24, type: 'brick' }
+            { x: 0, y: 0, width: 3800, height: 70, type: 'ground' },
+            { x: 350, y: 0, width: 160, height: 24, type: 'brick' },
+            { x: 600, y: 0, width: 150, height: 24, type: 'brick' },
+            { x: 880, y: 0, width: 170, height: 24, type: 'brick' },
+            { x: 1150, y: 0, width: 160, height: 24, type: 'brick' },
+            { x: 1420, y: 0, width: 150, height: 24, type: 'brick' },
+            { x: 1700, y: 0, width: 170, height: 24, type: 'brick' },
+            { x: 1980, y: 0, width: 160, height: 24, type: 'brick' },
+            { x: 2250, y: 0, width: 150, height: 24, type: 'brick' },
+            { x: 2520, y: 0, width: 170, height: 24, type: 'brick' },
+            { x: 2820, y: 0, width: 180, height: 24, type: 'brick' },
+            { x: 3120, y: 0, width: 190, height: 24, type: 'brick' }
         ];
 
         let enemies = [
@@ -247,20 +247,38 @@
         function setupPositions() {
             const groundY = canvas.height - 70;
             platforms[0].y = groundY;
-            platforms[0].height = 100;
+            platforms[0].height = 70;
+
+            // Расставляем высоты для кирпичных платформ относительно верха экрана
+            const h = canvas.height;
+            platforms[1].y = h - 220;
+            platforms[2].y = h - 300;
+            platforms[3].y = h - 220;
+            platforms[4].y = h - 300;
+            platforms[5].y = h - 210;
+            platforms[6].y = h - 300;
+            platforms[7].y = h - 210;
+            platforms[8].y = h - 300;
+            platforms[9].y = h - 210;
+            platforms[10].y = h - 290;
+            platforms[11].y = h - 210;
 
             enemies[0].y = groundY - 32;
             enemies[1].y = groundY - 32;
-            enemies[2].y = 230 - 32;
+            enemies[2].y = platforms[4].y - 32;
             enemies[3].y = groundY - 32;
             enemies[4].y = groundY - 32;
             enemies[5].y = groundY - 32;
             enemies[6].y = groundY - 32;
 
             flag.y = groundY - 110;
+
+            if (player.y === 0) {
+                player.y = groundY - player.height;
+            }
         }
-        setupPositions();
-        window.addEventListener('resize', setupPositions);
+
+        resizeCanvas();
 
         const keys = {};
         window.addEventListener('keydown', e => { keys[e.code] = true; });
@@ -484,7 +502,7 @@
             gameWon = false;
             gameOver = false;
             player.x = 80;
-            player.y = 50;
+            player.y = platforms[0].y - player.height;
             player.dx = 0;
             player.dy = 0;
             keys['ArrowLeft'] = false;
