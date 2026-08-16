@@ -147,7 +147,7 @@
             font-size: 1.05rem;
         }
 
-        /* Экраны и AAA Меню */
+        /* Экраны и скромное, стильное Меню */
         .screen {
             display: none;
             position: absolute;
@@ -166,36 +166,23 @@
         }
 
         #main-menu {
-            background: linear-gradient(135deg, #1f1b2e 0%, #0f0e17 100%);
-            padding-bottom: 30px;
-        }
-
-        .menu-castle-art {
-            font-size: 3rem;
-            margin-bottom: 5px;
-            animation: floatCastle 3s ease-in-out infinite alternate;
-            filter: drop-shadow(0 0 15px rgba(255, 112, 166, 0.6));
-        }
-
-        @keyframes floatCastle {
-            0% { transform: translateY(0px); }
-            100% { transform: translateY(-8px); }
+            background: linear-gradient(135deg, rgba(20, 18, 30, 0.95) 0%, rgba(10, 9, 15, 0.98) 100%);
+            padding-bottom: 20px;
         }
 
         .screen h2 {
-            font-size: 1.7rem;
-            margin: 0 0 6px 0;
+            font-size: 1.5rem;
+            margin: 0.5rem 0 0.3rem 0;
             color: #ff70a6;
-            text-shadow: 0 2px 10px rgba(255, 112, 166, 0.4);
         }
 
         #lose-screen h2 { color: #ff4757; }
 
         .screen p {
-            font-size: 0.95rem;
-            max-width: 400px;
+            font-size: 0.85rem;
+            max-width: 320px;
             line-height: 1.3;
-            color: #d8d8f6;
+            color: #c0c0d0;
             margin: 0 0 15px 0;
         }
 
@@ -203,65 +190,58 @@
             background: linear-gradient(135deg, #ff70a6, #ff3366);
             color: white;
             border: none;
-            padding: 12px 28px;
-            font-size: 1rem;
-            border-radius: 25px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
-            box-shadow: 0 6px 20px rgba(255, 51, 102, 0.5);
+            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
             pointer-events: auto;
             margin-top: 10px;
-            transition: 0.2s;
         }
 
-        .restart-btn:active {
-            transform: scale(0.96);
-        }
-
-        /* Выбор уровней */
+        /* Выбор уровней (скромный компактный список) */
         .level-grid {
             display: grid;
             grid-template-columns: repeat(1, 1fr);
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            max-width: 340px;
-            margin-bottom: 10px;
+            max-width: 300px;
+            margin-bottom: 5px;
         }
 
         .level-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 112, 166, 0.5);
-            border-radius: 14px;
-            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 112, 166, 0.3);
+            border-radius: 10px;
+            padding: 8px 12px;
             color: white;
             cursor: pointer;
             text-align: left;
-            transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: 0.2s;
         }
 
         .level-card:active {
-            background: rgba(255, 112, 166, 0.25);
+            background: rgba(255, 112, 166, 0.2);
             border-color: #ff70a6;
-            transform: scale(0.98);
         }
 
         .level-card h3 {
             margin: 0 0 2px 0;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #ffb703;
         }
 
         .level-card span {
-            font-size: 0.75rem;
-            color: #a0a0c0;
+            font-size: 0.7rem;
+            color: #8888a0;
         }
 
         .level-card .icon-preview {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
         }
     </style>
 </head>
@@ -281,20 +261,19 @@
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
 
-        <!-- AAA Главное Меню с интерактивным замком -->
+        <!-- Скромное и аккуратное главное меню -->
         <div id="main-menu" class="screen" style="display: flex;">
-            <div class="menu-castle-art">🏰💖</div>
-            <h2>Шахина: Королевский Путь</h2>
-            <p>Выбери главу королевства, чтобы начать свое эпическое приключение и спасти сердечко!</p>
+            <h2>👑 Выбор Главы</h2>
+            <p>Выбери уровень, чтобы начать прохождение:</p>
             <div class="level-grid" id="levelGrid">
                 <!-- Заполняется динамически -->
             </div>
         </div>
 
         <div id="win-screen" class="screen">
-            <h2>Ура, абсолютная победа! 🎉</h2>
-            <p>Ты прошла все 5 глав и добралась до сердечка! Шахина — самая крутая принцесса и пикми ❤️👑</p>
-            <button class="restart-btn" id="winRestart">В главное меню</button>
+            <h2>Ура, победа! 🎉</h2>
+            <p>Ты прошла все 5 глав и добралась до замка! Шахина — самая крутая принцесса ❤️</p>
+            <button class="restart-btn" id="winRestart">В меню</button>
         </div>
 
         <div id="next-level-screen" class="screen">
@@ -304,9 +283,9 @@
         </div>
 
         <div id="lose-screen" class="screen">
-            <h2>Ой-ой, сердечки кончились! 🙈</h2>
-            <p>Ничего страшного, настоящие принцессы не сдаются с первой попытки!</p>
-            <button class="restart-btn" id="loseRestart">Попробовать снова</button>
+            <h2>Ой, сердечки кончились! 🙈</h2>
+            <p>Попробуй еще раз, у тебя обязательно получится!</p>
+            <button class="restart-btn" id="loseRestart">Повторить</button>
         </div>
     </div>
 
@@ -360,14 +339,14 @@
         let levelLength = 7000;
 
         const levelThemes = {
-            1: { name: "Глава 1: Солнечная поляна", icon: "🌸", sky1: "#2b2d42", sky2: "#3a86ff", sky3: "#8338ec", ground1: "#1b4332", ground2: "#2d6a4f", brick: "#cc5803" },
-            2: { name: "Глава 2: Закатный каньон", icon: "🦂", sky1: "#4a154b", sky2: "#e07a5f", sky3: "#f4a261", ground1: "#6b705c", ground2: "#a5a58d", brick: "#bc6c25" },
-            3: { name: "Глава 3: Ночной замок", icon: "🦇", sky1: "#0b090a", sky2: "#161a1d", sky3: "#370617", ground1: "#212529", ground2: "#343a40", brick: "#7209b7" },
-            4: { name: "Глава 4: Магический лес", icon: "🍄", sky1: "#03071e", sky2: "#370617", sky3: "#6a040f", ground1: "#132a13", ground2: "#31572c", brick: "#9d0208" },
+            1: { name: "Глава 1: Зеленые луга", icon: "🌸", sky1: "#2b2d42", sky2: "#3a86ff", sky3: "#8338ec", ground1: "#1b4332", ground2: "#2d6a4f", brick: "#cc5803" },
+            2: { name: "Глава 2: Пустынный каньон", icon: "🦂", sky1: "#4a154b", sky2: "#e07a5f", sky3: "#f4a261", ground1: "#6b705c", ground2: "#a5a58d", brick: "#bc6c25" },
+            3: { name: "Глава 3: Темнолесье", icon: "🦇", sky1: "#0b090a", sky2: "#161a1d", sky3: "#370617", ground1: "#212529", ground2: "#343a40", brick: "#7209b7" },
+            4: { name: "Глава 4: Магический грот", icon: "🍄", sky1: "#03071e", sky2: "#370617", sky3: "#6a040f", ground1: "#132a13", ground2: "#31572c", brick: "#9d0208" },
             5: { name: "Глава 5: Небесный замок", icon: "🤖", sky1: "#001d3d", sky2: "#003566", sky3: "#ffc300", ground1: "#000814", ground2: "#001d3d", brick: "#ff0054" }
         };
 
-        // Заполняем меню карточками
+        // Заполняем скромное меню карточками
         const levelGrid = document.getElementById('levelGrid');
         for (let i = 1; i <= 5; i++) {
             const card = document.createElement('div');
@@ -375,7 +354,7 @@
             card.innerHTML = `
                 <div>
                     <h3>${levelThemes[i].name}</h3>
-                    <span>Нажми для старта главы</span>
+                    <span>Начать прохождение</span>
                 </div>
                 <div class="icon-preview">${levelThemes[i].icon}</div>
             `;
@@ -433,7 +412,6 @@
                 }
             }
 
-            // Наземные враги
             for (let gx = 450; gx < levelLength - 500; gx += 500) {
                 enemies.push({
                     x: gx,
@@ -538,7 +516,6 @@
 
             player.dy += player.gravity;
 
-            // Коллизия по X
             player.x += player.dx;
             platforms.forEach(p => {
                 if (
@@ -552,7 +529,6 @@
                 }
             });
 
-            // Коллизия по Y
             player.y += player.dy;
             player.grounded = false;
             platforms.forEach(p => {
@@ -573,7 +549,6 @@
                 }
             });
 
-            // Враги
             enemies.forEach(en => {
                 en.x += en.speed * en.dir;
                 if (en.x > en.maxX || en.x < en.minX) en.dir *= -1;
@@ -609,7 +584,6 @@
                 document.getElementById('lose-screen').style.display = 'flex';
             }
 
-            // Финиш
             if (
                 player.x < flag.x + flag.width &&
                 player.x + player.width > flag.x &&
@@ -643,14 +617,6 @@
             ctx.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
 
             if (isInMenu) {
-                // Рисуем красивый фон меню в стиле замка
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-                for (let i = 80; i < VIEW_WIDTH; i += 220) {
-                    ctx.beginPath();
-                    ctx.arc(i, 80, 35, 0, Math.PI * 2);
-                    ctx.arc(i + 30, 65, 45, 0, Math.PI * 2);
-                    ctx.fill();
-                }
                 ctx.setTransform(1, 0, 0, 1, 0, 0);
                 return;
             }
@@ -658,8 +624,25 @@
             ctx.save();
             ctx.translate(-cameraX, 0);
 
+            // Текстура Замка на заднем плане (параллакс)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            for (let bx = 200; bx < levelLength; bx += 800) {
+                // Башни замка сзади
+                ctx.fillRect(bx, VIEW_HEIGHT - 240, 90, 180);
+                ctx.beginPath();
+                ctx.moveTo(bx - 10, VIEW_HEIGHT - 240);
+                ctx.lineTo(bx + 45, VIEW_HEIGHT - 300);
+                ctx.lineTo(bx + 100, VIEW_HEIGHT - 240);
+                ctx.fill();
+                // Окошки замка
+                ctx.fillStyle = 'rgba(255, 255, 100, 0.15)';
+                ctx.fillRect(bx + 20, VIEW_HEIGHT - 210, 16, 25);
+                ctx.fillRect(bx + 54, VIEW_HEIGHT - 210, 16, 25);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            }
+
             // Текстурные облака
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
             for (let i = 100; i < levelLength; i += 280) {
                 ctx.beginPath();
                 ctx.arc(i, 120, 45, 0, Math.PI * 2);
@@ -668,24 +651,21 @@
                 ctx.fill();
             }
 
-            // Продвинутые текстуры платформ
+            // Платформы
             platforms.forEach(p => {
                 if (p.type === 'ground') {
-                    // Земля с градиентом и узором текстуры
                     ctx.fillStyle = theme.ground1;
                     ctx.fillRect(p.x, p.y, p.width, p.height);
                     ctx.fillStyle = theme.ground2;
                     ctx.fillRect(p.x, p.y, p.width, 18);
                     
-                    // Текстурные полосы и трава
                     ctx.fillStyle = '#52b788';
                     for (let tx = p.x; tx < p.x + p.width; tx += 30) {
                         ctx.fillRect(tx, p.y, 14, 6);
                     }
                 } else {
-                    // Кирпичные платформы с обводкой и тенями
                     ctx.fillStyle = '#111';
-                    ctx.fillRect(p.x, p.y + p.height - 4, p.width, 4); // тень
+                    ctx.fillRect(p.x, p.y + p.height - 4, p.width, 4);
 
                     ctx.fillStyle = theme.brick;
                     ctx.fillRect(p.x, p.y, p.width, p.height);
@@ -693,7 +673,6 @@
                     ctx.fillStyle = '#e85d04';
                     ctx.fillRect(p.x, p.y, p.width, 7);
 
-                    // Текстурная сетка кирпичей
                     ctx.fillStyle = 'rgba(0,0,0,0.25)';
                     for (let bx = p.x + 20; bx < p.x + p.width; bx += 35) {
                         ctx.fillRect(bx, p.y + 7, 3, p.height - 7);
@@ -704,20 +683,19 @@
                 }
             });
 
-            // Уникальные враги с прорисованными деталями
+            // Уникальные враги (новые модели)
             enemies.forEach(en => {
                 const ex = en.x;
                 const ey = en.y;
 
                 if (en.type === 1) {
-                    // 🌸 Глава 1: Зубастый Цветок
+                    // Зубастый Цветок
                     ctx.fillStyle = '#d90429';
                     ctx.beginPath();
                     ctx.arc(ex + 17, ey + 16, 16, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.fillStyle = '#ff70a6';
                     ctx.fillRect(ex + 12, ey + 16, 10, 16);
-                    // Лицо злое
                     ctx.fillStyle = '#fff';
                     ctx.fillRect(ex + 8, ey + 10, 6, 6);
                     ctx.fillRect(ex + 20, ey + 10, 6, 6);
@@ -725,12 +703,11 @@
                     ctx.fillRect(ex + 10, ey + 12, 2, 3);
                     ctx.fillRect(ex + 22, ey + 12, 2, 3);
                 } else if (en.type === 2) {
-                    // 🦂 Глава 2: Скорпион
+                    // Скорпион
                     ctx.fillStyle = '#bc6c25';
                     ctx.fillRect(ex + 4, ey + 12, 26, 16);
                     ctx.fillStyle = '#dda15e';
                     ctx.fillRect(ex + 8, ey + 6, 14, 10);
-                    // Хвост с жалом
                     ctx.strokeStyle = '#bc6c25';
                     ctx.lineWidth = 4;
                     ctx.beginPath();
@@ -738,12 +715,11 @@
                     ctx.quadraticCurveTo(ex + 38, ey, ex + 32, ey - 10);
                     ctx.stroke();
                 } else if (en.type === 3) {
-                    // 🦇 Глава 3: Летучая мышь
+                    // Летучая мышь
                     ctx.fillStyle = '#3a0ca3';
                     ctx.beginPath();
                     ctx.arc(ex + 17, ey + 16, 12, 0, Math.PI * 2);
                     ctx.fill();
-                    // Крылья
                     ctx.fillStyle = '#480ca8';
                     ctx.beginPath();
                     ctx.moveTo(ex + 5, ey + 12);
@@ -755,37 +731,34 @@
                     ctx.lineTo(ex + 40, ey + 4);
                     ctx.lineTo(ex + 29, ey + 22);
                     ctx.fill();
-                    // Глаза
                     ctx.fillStyle = '#ff0054';
                     ctx.fillRect(ex + 11, ey + 12, 3, 3);
                     ctx.fillRect(ex + 20, ey + 12, 3, 3);
                 } else if (en.type === 4) {
-                    // 🍄 Глава 4: Злой гриб
+                    // Злой гриб
                     ctx.fillStyle = '#7209b7';
                     ctx.beginPath();
                     ctx.arc(ex + 17, ey + 12, 16, Math.PI, 0, false);
                     ctx.fill();
                     ctx.fillStyle = '#f72585';
                     ctx.fillRect(ex + 8, ey + 12, 18, 16);
-                    // Точки на шляпке
                     ctx.fillStyle = '#fff';
                     ctx.fillRect(ex + 10, ey + 4, 4, 4);
                     ctx.fillRect(ex + 20, ey + 6, 5, 4);
                 } else {
-                    // 🤖 Глава 5: Робо-бот с лазером
+                    // Робо-бот с лазером
                     ctx.fillStyle = '#212529';
                     ctx.fillRect(ex + 4, ey + 6, 26, 22);
-                    ctx.fillStyle = '#ff0054'; // Лазерный глаз
+                    ctx.fillStyle = '#ff0054';
                     ctx.fillRect(ex + 10, ey + 12, 14, 6);
                     ctx.fillStyle = '#fff';
                     ctx.fillRect(ex + 14, ey + 14, 6, 2);
-                    // Гусеницы
                     ctx.fillStyle = '#6c757d';
                     ctx.fillRect(ex + 2, ey + 24, 30, 6);
                 }
             });
 
-            // Замок финиша
+            // Финишный замок
             ctx.fillStyle = '#ff70a6';
             ctx.fillRect(flag.x, flag.y, flag.width, flag.height);
             ctx.fillStyle = '#ff97b7';
@@ -793,29 +766,25 @@
             ctx.font = '42px sans-serif';
             ctx.fillText('💖', flag.x + 2, flag.y - 52);
 
-            // Персонаж (Шахина)
+            // Шахина
             if (invulnerableTimer === 0 || Math.floor(invulnerableTimer / 5) % 2 === 0) {
                 const px = player.x;
                 const py = player.y;
 
-                // Платье с текстурным градиентом
                 ctx.fillStyle = '#ff3366';
                 ctx.fillRect(px + 6, py + 22, player.width - 12, player.height - 22);
                 ctx.fillStyle = '#ff668a';
                 ctx.fillRect(px + 2, py + 45, player.width - 4, 11);
 
-                // Волосы
                 ctx.fillStyle = '#ffb703';
                 ctx.fillRect(px + 6, py + 4, player.width - 12, 20);
 
-                // Лицо
                 ctx.fillStyle = '#ffe5ec';
                 ctx.fillRect(px + 9, py + 9, player.width - 18, 13);
                 ctx.fillStyle = '#2b2d42';
                 ctx.fillRect(px + 12, py + 13, 3, 4);
                 ctx.fillRect(px + 25, py + 13, 3, 4);
 
-                // Корона
                 ctx.fillStyle = '#ffbc42';
                 ctx.beginPath();
                 ctx.moveTo(px + 6, py + 4);
