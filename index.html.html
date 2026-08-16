@@ -9,6 +9,7 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: none;
         }
         body {
             margin: 0;
@@ -18,15 +19,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            justify-content: space-between;
+            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             color: #fff;
         }
 
         h1 {
-            margin: 0 0 10px 0;
-            font-size: 1.2rem;
+            margin: 6px 0;
+            font-size: 1.1rem;
             color: #ff8fab;
             text-align: center;
             padding: 0 10px;
@@ -41,52 +43,62 @@
             border: 3px solid #ff70a6;
             width: 100%;
             max-width: 800px;
+            aspect-ratio: 2 / 1;
         }
 
         canvas {
             display: block;
             width: 100%;
-            height: auto;
+            height: 100%;
             background: linear-gradient(to bottom, #3a86ff, #8338ec);
         }
 
+        /* Управление для телефона */
         .controls {
             display: flex;
             justify-content: space-between;
             width: 100%;
             max-width: 800px;
-            padding: 15px 20px;
+            padding: 10px 15px 20px 15px;
             gap: 15px;
         }
 
-        .dir-buttons {
+        .dir-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            flex: 1;
         }
 
         .btn {
             background: rgba(255, 255, 255, 0.15);
             border: 2px solid #ff70a6;
             color: #fff;
-            padding: 18px 28px;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             border-radius: 16px;
             cursor: pointer;
-            touch-action: manipulation;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            flex: 1;
+            height: 75px;
         }
 
         .btn:active, .btn.pressed {
-            background: rgba(255, 112, 166, 0.5);
+            background: rgba(255, 112, 166, 0.6);
             transform: scale(0.95);
         }
 
         .jump-btn {
-            background: rgba(255, 112, 166, 0.3);
+            background: rgba(255, 112, 166, 0.35);
             border-color: #ff477e;
+            flex: 1.2;
+            height: 75px;
+            font-size: 1.1rem;
         }
 
+        /* Плотные непрозрачные экраны */
         .screen {
             display: none;
             position: absolute;
@@ -94,40 +106,42 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 14, 23, 0.94);
+            background: #121118;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
             padding: 20px;
+            z-index: 20;
         }
 
         .screen h2 {
-            font-size: 2rem;
-            margin-bottom: 15px;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
             color: #ff70a6;
         }
 
         #lose-screen h2 { color: #ff4757; }
 
         .screen p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             max-width: 480px;
-            line-height: 1.6;
+            line-height: 1.5;
             color: #f1f1f1;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .restart-btn {
             background: #ff70a6;
             color: white;
             border: none;
-            padding: 14px 30px;
-            font-size: 1.1rem;
+            padding: 12px 28px;
+            font-size: 1rem;
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(255, 112, 166, 0.4);
+            pointer-events: auto;
         }
     </style>
 </head>
@@ -141,18 +155,18 @@
         <div id="win-screen" class="screen">
             <h2>Ура, ты победила! 🎉</h2>
             <p>Ты у меня самая лучшая Шахина, принцесса моя всегда будь такой маленькой пикми ❤️</p>
-            <button class="restart-btn" onclick="restartGame()">Сыграть еще раз</button>
+            <button class="restart-btn" id="winRestart">Сыграть еще раз</button>
         </div>
 
         <div id="lose-screen" class="screen">
             <h2>Ой-ой, упс! 🙈</h2>
             <p>Ничего страшного, настоящие принцессы проходят через любые преграды! Давай попробуем еще разок?</p>
-            <button class="restart-btn" onclick="restartGame()">Попробовать снова</button>
+            <button class="restart-btn" id="loseRestart">Попробовать снова</button>
         </div>
     </div>
 
     <div class="controls">
-        <div class="dir-buttons">
+        <div class="dir-group">
             <button class="btn" id="leftBtn">⬅️</button>
             <button class="btn" id="rightBtn">➡️</button>
         </div>
@@ -218,15 +232,22 @@
         function bindTouch(id, code) {
             const el = document.getElementById(id);
             if (!el) return;
-            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[code] = true; el.classList.add('pressed'); });
-            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[code] = false; el.classList.remove('pressed'); });
-            el.addEventListener('mousedown', () => { keys[code] = true; el.classList.add('pressed'); });
-            el.addEventListener('mouseup', () => { keys[code] = false; el.classList.remove('pressed'); });
-            el.addEventListener('mouseleave', () => { keys[code] = false; el.classList.remove('pressed'); });
+            const activate = (e) => { e.preventDefault(); keys[code] = true; el.classList.add('pressed'); };
+            const deactivate = (e) => { e.preventDefault(); keys[code] = false; el.classList.remove('pressed'); };
+
+            el.addEventListener('touchstart', activate, {passive: false});
+            el.addEventListener('touchend', deactivate, {passive: false});
+            el.addEventListener('touchcancel', deactivate, {passive: false});
+            el.addEventListener('mousedown', activate);
+            el.addEventListener('mouseup', deactivate);
+            el.addEventListener('mouseleave', deactivate);
         }
         bindTouch('leftBtn', 'ArrowLeft');
         bindTouch('rightBtn', 'ArrowRight');
         bindTouch('jumpBtn', 'Space');
+
+        document.getElementById('winRestart').addEventListener('click', restartGame);
+        document.getElementById('loseRestart').addEventListener('click', restartGame);
 
         let cameraX = 0;
 
@@ -243,23 +264,46 @@
             }
 
             player.dy += player.gravity;
-            player.x += player.dx;
-            player.y += player.dy;
 
-            player.grounded = false;
+            // Движение по X с проверкой стен
+            player.x += player.dx;
             platforms.forEach(p => {
                 if (
                     player.x < p.x + p.width &&
                     player.x + player.width > p.x &&
-                    player.y + player.height >= p.y &&
-                    player.y + player.height - player.dy <= p.y
+                    player.y < p.y + p.height &&
+                    player.y + player.height > p.y
                 ) {
-                    player.y = p.y - player.height;
-                    player.dy = 0;
-                    player.grounded = true;
+                    if (player.dx > 0) {
+                        player.x = p.x - player.width;
+                    } else if (player.dx < 0) {
+                        player.x = p.x + p.width;
+                    }
                 }
             });
 
+            // Движение по Y с проверкой пола/потолка
+            player.y += player.dy;
+            player.grounded = false;
+            platforms.files = platforms.forEach(p => {
+                if (
+                    player.x < p.x + p.width &&
+                    player.x + player.width > p.x &&
+                    player.y < p.y + p.height &&
+                    player.y + player.height > p.y
+                ) {
+                    if (player.dy > 0) { // Падение на платформу
+                        player.y = p.y - player.height;
+                        player.dy = 0;
+                        player.grounded = true;
+                    } else if (player.dy < 0) { // Удар головой снизу
+                        player.y = p.y + p.height;
+                        player.dy = 0;
+                    }
+                }
+            });
+
+            // Враги
             enemies.forEach(en => {
                 en.x += en.speed * en.dir;
                 if (en.x > en.maxX || en.x < en.minX) {
@@ -358,28 +402,24 @@
             ctx.font = '36px sans-serif';
             ctx.fillText('💖', flag.x + 3, flag.y - 45);
 
-            // Нормальная фигурка принцессы (аккуратный персонаж в платье и короне)
+            // Фигурка принцессы
             const px = player.x;
             const py = player.y;
 
-            // Тело / Пышное розовое платье (прямоугольное/округленное снизу, без треугольников)
             ctx.fillStyle = '#ff4d6d';
             ctx.fillRect(px + 4, py + 18, player.width - 8, player.height - 18);
             ctx.fillStyle = '#ff758f';
-            ctx.fillRect(px + 2, py + 38, player.width - 4, 10); // Низ платья
+            ctx.fillRect(px + 2, py + 38, player.width - 4, 10);
 
-            // Голова и волосы
             ctx.fillStyle = '#ffb703';
             ctx.fillRect(px + 5, py + 4, player.width - 10, 16);
 
-            // Лицо
             ctx.fillStyle = '#ffe5ec';
             ctx.fillRect(px + 8, py + 8, player.width - 16, 10);
             ctx.fillStyle = '#2b2d42';
             ctx.fillRect(px + 10, py + 11, 3, 3);
             ctx.fillRect(px + 19, py + 11, 3, 3);
 
-            // Корона
             ctx.fillStyle = '#ffd166';
             ctx.beginPath();
             ctx.moveTo(px + 7, py + 4);
@@ -404,6 +444,7 @@
             gameOver = false;
             player.x = 50;
             player.y = 250;
+            player.dx = 0;
             player.dy = 0;
             document.getElementById('win-screen').style.display = 'none';
             document.getElementById('lose-screen').style.display = 'none';
