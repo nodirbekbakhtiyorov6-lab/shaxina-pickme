@@ -189,9 +189,9 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Виртуальное разрешение для широкого охвата камеры (вместо мелкого зума)
-        const VIEW_WIDTH = 900;
-        let VIEW_HEIGHT = 500;
+        // Умеренное разрешение для идеального масштаба персонажа и платформ
+        const VIEW_WIDTH = 680;
+        let VIEW_HEIGHT = 440;
 
         function resizeCanvas() {
             canvas.width = canvas.parentElement.clientWidth;
@@ -207,18 +207,18 @@
         const player = {
             x: 80,
             y: 0,
-            width: 36,
-            height: 52,
+            width: 40,
+            height: 56,
             speed: 5.5,
             dx: 0,
             dy: 0,
             jumpPower: -12.5,
-            gravity: 0.55,
+            gravity: 0.58,
             grounded: false
         };
 
         const platforms = [
-            { x: 0, y: 0, width: 3800, height: 60, type: 'ground' },
+            { x: 0, y: 0, width: 3800, height: 65, type: 'ground' },
             { x: 350, y: 0, width: 150, height: 22, type: 'brick' },
             { x: 580, y: 0, width: 140, height: 22, type: 'brick' },
             { x: 820, y: 0, width: 160, height: 22, type: 'brick' },
@@ -233,13 +233,13 @@
         ];
 
         let enemies = [
-            { x: 380, y: 0, width: 30, height: 28, speed: 1.6, minX: 350, maxX: 460, dir: 1 },
-            { x: 860, y: 0, width: 30, height: 28, speed: 1.9, minX: 820, maxX: 950, dir: 1 },
-            { x: 1120, y: 0, width: 30, height: 28, speed: 1.3, minX: 1080, maxX: 1200, dir: 1 },
-            { x: 1400, y: 0, width: 30, height: 28, speed: 2.1, minX: 1340, maxX: 1450, dir: 1 },
-            { x: 1940, y: 0, width: 30, height: 28, speed: 1.7, minX: 1880, maxX: 2000, dir: 1 },
-            { x: 2460, y: 0, width: 30, height: 28, speed: 1.5, minX: 2400, maxX: 2530, dir: 1 },
-            { x: 3020, y: 0, width: 30, height: 28, speed: 1.4, minX: 2960, maxX: 3110, dir: 1 }
+            { x: 380, y: 0, width: 32, height: 30, speed: 1.6, minX: 350, maxX: 460, dir: 1 },
+            { x: 860, y: 0, width: 32, height: 30, speed: 1.9, minX: 820, maxX: 950, dir: 1 },
+            { x: 1120, y: 0, width: 32, height: 30, speed: 1.3, minX: 1080, maxX: 1200, dir: 1 },
+            { x: 1400, y: 0, width: 32, height: 30, speed: 2.1, minX: 1340, maxX: 1450, dir: 1 },
+            { x: 1940, y: 0, width: 32, height: 30, speed: 1.7, minX: 1880, maxX: 2000, dir: 1 },
+            { x: 2460, y: 0, width: 32, height: 30, speed: 1.5, minX: 2400, maxX: 2530, dir: 1 },
+            { x: 3020, y: 0, width: 32, height: 30, speed: 1.4, minX: 2960, maxX: 3110, dir: 1 }
         ];
 
         const flag = {
@@ -250,30 +250,30 @@
         };
 
         function setupPositions() {
-            const groundY = VIEW_HEIGHT - 60;
+            const groundY = VIEW_HEIGHT - 65;
             platforms[0].y = groundY;
-            platforms[0].height = 60;
+            platforms[0].height = 65;
 
-            // Низкие комфортные платформы
+            // Комфортные низкие платформы
             platforms[1].y = VIEW_HEIGHT - 160;
-            platforms[2].y = VIEW_HEIGHT - 210;
+            platforms[2].y = VIEW_HEIGHT - 215;
             platforms[3].y = VIEW_HEIGHT - 160;
-            platforms[4].y = VIEW_HEIGHT - 210;
+            platforms[4].y = VIEW_HEIGHT - 215;
             platforms[5].y = VIEW_HEIGHT - 160;
             platforms[6].y = VIEW_HEIGHT - 220;
             platforms[7].y = VIEW_HEIGHT - 160;
-            platforms[8].y = VIEW_HEIGHT - 210;
+            platforms[8].y = VIEW_HEIGHT - 215;
             platforms[9].y = VIEW_HEIGHT - 160;
-            platforms[10].y = VIEW_HEIGHT - 210;
+            platforms[10].y = VIEW_HEIGHT - 215;
             platforms[11].y = VIEW_HEIGHT - 160;
 
-            enemies[0].y = groundY - 28;
-            enemies[1].y = groundY - 28;
-            enemies[2].y = platforms[4].y - 28;
-            enemies[3].y = groundY - 28;
-            enemies[4].y = groundY - 28;
-            enemies[5].y = groundY - 28;
-            enemies[6].y = groundY - 28;
+            enemies[0].y = groundY - 30;
+            enemies[1].y = groundY - 30;
+            enemies[2].y = platforms[4].y - 30;
+            enemies[3].y = groundY - 30;
+            enemies[4].y = groundY - 30;
+            enemies[5].y = groundY - 30;
+            enemies[6].y = groundY - 30;
 
             flag.y = groundY - 100;
 
@@ -401,7 +401,6 @@
         }
 
         function draw() {
-            // Масштабируем под размер экрана
             ctx.setTransform(canvas.width / VIEW_WIDTH, 0, 0, canvas.height / VIEW_HEIGHT, 0, 0);
 
             let skyGradient = ctx.createLinearGradient(0, 0, 0, VIEW_HEIGHT);
@@ -414,13 +413,13 @@
             ctx.save();
             ctx.translate(-cameraX, 0);
 
-            // Облака
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            for (let i = 150; i < 3800; i += 300) {
+            // Облака на нормальной высоте
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+            for (let i = 120; i < 3800; i += 280) {
                 ctx.beginPath();
-                ctx.arc(i, 80, 45, 0, Math.PI * 2);
-                ctx.arc(i + 45, 60, 60, 0, Math.PI * 2);
-                ctx.arc(i + 100, 80, 45, 0, Math.PI * 2);
+                ctx.arc(i, 140, 40, 0, Math.PI * 2);
+                ctx.arc(i + 35, 120, 55, 0, Math.PI * 2);
+                ctx.arc(i + 85, 140, 40, 0, Math.PI * 2);
                 ctx.fill();
             }
 
@@ -430,14 +429,14 @@
                     ctx.fillStyle = '#1b4332';
                     ctx.fillRect(p.x, p.y, p.width, p.height);
                     ctx.fillStyle = '#2d6a4f';
-                    ctx.fillRect(p.x, p.y, p.width, 14);
+                    ctx.fillRect(p.x, p.y, p.width, 16);
                     ctx.fillStyle = '#52b788';
-                    ctx.fillRect(p.x, p.y, p.width, 4);
+                    ctx.fillRect(p.x, p.y, p.width, 5);
                 } else {
                     ctx.fillStyle = '#cc5803';
                     ctx.fillRect(p.x, p.y, p.width, p.height);
                     ctx.fillStyle = '#e85d04';
-                    ctx.fillRect(p.x, p.y, p.width, 7);
+                    ctx.fillRect(p.x, p.y, p.width, 8);
                     ctx.fillStyle = '#ffba08';
                     ctx.fillRect(p.x, p.y, p.width, 3);
                 }
@@ -447,22 +446,22 @@
             enemies.forEach(en => {
                 ctx.fillStyle = '#d90429';
                 ctx.beginPath();
-                ctx.arc(en.x + en.width/2, en.y + 12, 15, Math.PI, 0, false);
+                ctx.arc(en.x + en.width/2, en.y + 14, 16, Math.PI, 0, false);
                 ctx.fill();
                 ctx.fillStyle = '#ffccd5';
-                ctx.fillRect(en.x + 4, en.y + 12, 22, 16);
+                ctx.fillRect(en.x + 5, en.y + 14, 22, 16);
                 ctx.fillStyle = '#000';
-                ctx.fillRect(en.x + 8, en.y + 16, 3, 4);
-                ctx.fillRect(en.x + 19, en.y + 16, 3, 4);
+                ctx.fillRect(en.x + 9, en.y + 18, 3, 4);
+                ctx.fillRect(en.x + 20, en.y + 18, 3, 4);
             });
 
             // Замок финиша
             ctx.fillStyle = '#ff70a6';
             ctx.fillRect(flag.x, flag.y, flag.width, flag.height);
             ctx.fillStyle = '#ff97b7';
-            ctx.fillRect(flag.x - 7, flag.y - 40, flag.width + 14, 40);
-            ctx.font = '40px sans-serif';
-            ctx.fillText('💖', flag.x + 2, flag.y - 48);
+            ctx.fillRect(flag.x - 7, flag.y - 42, flag.width + 14, 42);
+            ctx.font = '42px sans-serif';
+            ctx.fillText('💖', flag.x + 2, flag.y - 50);
 
             // Персонаж (Шахина)
             const px = player.x;
@@ -470,34 +469,34 @@
 
             // Платье
             ctx.fillStyle = '#ff3366';
-            ctx.fillRect(px + 5, py + 20, player.width - 10, player.height - 20);
+            ctx.fillRect(px + 6, py + 22, player.width - 12, player.height - 22);
             ctx.fillStyle = '#ff668a';
-            ctx.fillRect(px + 2, py + 42, player.width - 4, 10);
+            ctx.fillRect(px + 2, py + 45, player.width - 4, 11);
 
             // Волосы
             ctx.fillStyle = '#ffb703';
-            ctx.fillRect(px + 5, py + 4, player.width - 10, 18);
+            ctx.fillRect(px + 6, py + 4, player.width - 12, 20);
 
             // Лицо
             ctx.fillStyle = '#ffe5ec';
-            ctx.fillRect(px + 8, py + 8, player.width - 16, 12);
+            ctx.fillRect(px + 9, py + 9, player.width - 18, 13);
             ctx.fillStyle = '#2b2d42';
-            ctx.fillRect(px + 11, py + 12, 3, 3);
-            ctx.fillRect(px + 22, py + 12, 3, 3);
+            ctx.fillRect(px + 12, py + 13, 3, 4);
+            ctx.fillRect(px + 25, py + 13, 3, 4);
 
             // Корона
             ctx.fillStyle = '#ffbc42';
             ctx.beginPath();
             ctx.moveTo(px + 6, py + 4);
-            ctx.lineTo(px + 11, py - 4);
-            ctx.lineTo(px + 18, py + 2);
-            ctx.lineTo(px + 25, py - 4);
-            ctx.lineTo(px + 30, py + 4);
+            ctx.lineTo(px + 12, py - 5);
+            ctx.lineTo(px + 20, py + 3);
+            ctx.lineTo(px + 28, py - 5);
+            ctx.lineTo(px + 34, py + 4);
             ctx.closePath();
             ctx.fill();
 
             ctx.restore();
-            ctx.setTransform(1, 0, 0, 1, 0, 0); // сброс матрицы
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
         }
 
         function loop() {
