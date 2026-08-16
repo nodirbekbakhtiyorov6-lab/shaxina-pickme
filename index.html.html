@@ -111,32 +111,32 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             z-index: 20;
         }
 
         .screen h2 {
-            font-size: 1.8rem;
-            margin-bottom: 12px;
+            font-size: 1.6rem;
+            margin: 0 0 8px 0;
             color: #ff70a6;
         }
 
         #lose-screen h2 { color: #ff4757; }
 
         .screen p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             max-width: 480px;
-            line-height: 1.5;
+            line-height: 1.4;
             color: #f1f1f1;
-            margin-bottom: 20px;
+            margin: 0 0 15px 0;
         }
 
         .restart-btn {
             background: #ff70a6;
             color: white;
             border: none;
-            padding: 12px 28px;
-            font-size: 1rem;
+            padding: 10px 24px;
+            font-size: 0.95rem;
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
@@ -285,18 +285,18 @@
             // Движение по Y с проверкой пола/потолка
             player.y += player.dy;
             player.grounded = false;
-            platforms.files = platforms.forEach(p => {
+            platforms.forEach(p => {
                 if (
                     player.x < p.x + p.width &&
                     player.x + player.width > p.x &&
                     player.y < p.y + p.height &&
                     player.y + player.height > p.y
                 ) {
-                    if (player.dy > 0) { // Падение на платформу
+                    if (player.dy > 0) {
                         player.y = p.y - player.height;
                         player.dy = 0;
                         player.grounded = true;
-                    } else if (player.dy < 0) { // Удар головой снизу
+                    } else if (player.dy < 0) {
                         player.y = p.y + p.height;
                         player.dy = 0;
                     }
@@ -446,6 +446,10 @@
             player.y = 250;
             player.dx = 0;
             player.dy = 0;
+            keys['ArrowLeft'] = false;
+            keys['ArrowRight'] = false;
+            keys['Space'] = false;
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('pressed'));
             document.getElementById('win-screen').style.display = 'none';
             document.getElementById('lose-screen').style.display = 'none';
         }
