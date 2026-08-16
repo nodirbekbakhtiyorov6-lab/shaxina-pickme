@@ -40,9 +40,25 @@
             flex-shrink: 0;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-btn-small {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid #ff70a6;
+            color: #fff;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
         h1 {
             margin: 0;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #ff8fab;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
@@ -50,17 +66,17 @@
         .hud-info {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         .level-indicator {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #ffb703;
             font-weight: bold;
         }
 
         .hearts {
-            font-size: 1.1rem;
+            font-size: 1rem;
             letter-spacing: 2px;
         }
 
@@ -127,7 +143,7 @@
             font-size: 1.05rem;
         }
 
-        /* Экраны победы/поражения/перехода */
+        /* Экраны и меню */
         .screen {
             display: none;
             position: absolute;
@@ -142,44 +158,85 @@
             text-align: center;
             padding: 20px;
             z-index: 25;
+            overflow-y: auto;
         }
 
         .screen h2 {
-            font-size: 1.7rem;
-            margin: 0 0 10px 0;
+            font-size: 1.6rem;
+            margin: 0 0 8px 0;
             color: #ff70a6;
         }
 
         #lose-screen h2 { color: #ff4757; }
 
         .screen p {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             max-width: 400px;
-            line-height: 1.4;
+            line-height: 1.3;
             color: #f1f1f1;
-            margin: 0 0 20px 0;
+            margin: 0 0 15px 0;
         }
 
         .restart-btn {
             background: #ff70a6;
             color: white;
             border: none;
-            padding: 12px 28px;
-            font-size: 1rem;
+            padding: 10px 24px;
+            font-size: 0.95rem;
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(255, 112, 166, 0.5);
             pointer-events: auto;
+            margin-top: 5px;
+        }
+
+        /* Выбор уровней */
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 15px;
+        }
+
+        .level-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid #ff70a6;
+            border-radius: 12px;
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s;
+        }
+
+        .level-card:active {
+            background: rgba(255, 112, 166, 0.3);
+        }
+
+        .level-card h3 {
+            margin: 0 0 3px 0;
+            font-size: 0.95rem;
+            color: #ffb703;
+        }
+
+        .level-card span {
+            font-size: 0.75rem;
+            color: #b8b8d0;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1 id="levelTitle">Уровень 1: Солнечная поляна</h1>
+        <div class="header-left">
+            <button class="menu-btn-small" id="openMenuBtn">🏠 Меню</button>
+            <h1 id="levelTitle">Приключение Шахины</h1>
+        </div>
         <div class="hud-info">
-            <div class="level-indicator" id="levelIndicator">Ур. 1/3</div>
+            <div class="level-indicator" id="levelIndicator">Ур. 1/5</div>
             <div class="hearts" id="heartsDisplay">❤️❤️❤️</div>
         </div>
     </header>
@@ -187,21 +244,30 @@
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
 
+        <!-- Главное меню выбора уровней -->
+        <div id="main-menu" class="screen" style="display: flex;">
+            <h2>Выбор главы 👑💖</h2>
+            <p>Выбери уровень, с которого хочешь начать свое долгое путешествие к сердечку!</p>
+            <div class="level-grid" id="levelGrid">
+                <!-- Заполняется через JS -->
+            </div>
+        </div>
+
         <div id="win-screen" class="screen">
             <h2>Ура, абсолютная победа! 🎉</h2>
-            <p>Ты прошла все три уровня и добралась до сердечка! Шахина — самая крутая принцесса и пикми ❤️👑</p>
-            <button class="restart-btn" id="winRestart">Сыграть сначала</button>
+            <p>Ты прошла все 5 уровней и добралась до сердечка! Шахина — самая крутая принцесса и пикми ❤️👑</p>
+            <button class="restart-btn" id="winRestart">В главное меню</button>
         </div>
 
         <div id="next-level-screen" class="screen">
-            <h2>Уровень пройден! ✨</h2>
+            <h2>Глава пройдена! ✨</h2>
             <p id="nextLevelText">Готова к следующему испытанию?</p>
             <button class="restart-btn" id="nextLevelBtn">Следующий уровень</button>
         </div>
 
         <div id="lose-screen" class="screen">
             <h2>Ой-ой, сердечки кончились! 🙈</h2>
-            <p>Ничего страшного, давай попробуем пройти этот уровень снова с новыми силами!</p>
+            <p>Ничего страшного, давай попробуем пройти этот этап снова!</p>
             <button class="restart-btn" id="loseRestart">Попробовать снова</button>
         </div>
     </div>
@@ -225,16 +291,18 @@
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
             VIEW_HEIGHT = VIEW_WIDTH * (canvas.height / canvas.width);
-            setupLevel();
+            if (!isInMenu) setupLevel();
         }
         window.addEventListener('resize', resizeCanvas);
 
         let currentLevel = 1;
         let lives = 3;
+        let gameStarted = false;
+        let isInMenu = true;
         let gameWon = false;
         let gameOver = false;
         let levelCleared = false;
-        let invulnerableTimer = 0; // Защита от мгновенной потери всех жизней при ударе
+        let invulnerableTimer = 0;
 
         const player = {
             x: 80,
@@ -252,47 +320,70 @@
         let platforms = [];
         let enemies = [];
         let flag = { x: 0, y: 0, width: 50, height: 100 };
-        let levelLength = 5000; // Увеличенная длина уровней
+        let levelLength = 6000;
 
         const levelThemes = {
-            1: { name: "Уровень 1: Солнечная поляна", sky1: "#2b2d42", sky2: "#3a86ff", sky3: "#8338ec", ground1: "#1b4332", ground2: "#2d6a4f", brick: "#cc5803", enemyName: "жучок" },
-            2: { name: "Уровень 2: Закатный каньон", sky1: "#4a154b", sky2: "#e07a5f", sky3: "#f4a261", ground1: "#6b705c", ground2: "#a5a58d", brick: "#bc6c25", enemyName: "краб" },
-            3: { name: "Уровень 3: Ночной замок", sky1: "#0b090a", sky2: "#161a1d", sky3: "#370617", ground1: "#212529", ground2: "#343a40", brick: "#7209b7", enemyName: "призрак" }
+            1: { name: "Глава 1: Солнечная поляна", sky1: "#2b2d42", sky2: "#3a86ff", sky3: "#8338ec", ground1: "#1b4332", ground2: "#2d6a4f", brick: "#cc5803", enemy: "bug" },
+            2: { name: "Глава 2: Закатный каньон", sky1: "#4a154b", sky2: "#e07a5f", sky3: "#f4a261", ground1: "#6b705c", ground2: "#a5a58d", brick: "#bc6c25", enemy: "crab" },
+            3: { name: "Глава 3: Ночной замок", sky1: "#0b090a", sky2: "#161a1d", sky3: "#370617", ground1: "#212529", ground2: "#343a40", brick: "#7209b7", enemy: "ghost" },
+            4: { name: "Глава 4: Магический лес", sky1: "#03071e", sky2: "#370617", sky3: "#6a040f", ground1: "#132a13", ground2: "#31572c", brick: "#9d0208", enemy: "mushroom" },
+            5: { name: "Глава 5: Небесный замок", sky1: "#001d3d", sky2: "#003566", sky3: "#ffc300", ground1: "#000814", ground2: "#001d3d", brick: "#ff0054", enemy: "spikeball" }
         };
+
+        // Создаем карточки выбора уровней в меню
+        const levelGrid = document.getElementById('levelGrid');
+        for (let i = 1; i <= 5; i++) {
+            const card = document.createElement('div');
+            card.className = 'level-card';
+            card.innerHTML = `<h3>${levelThemes[i].name}</h3><span>Нажми, чтобы играть</span>`;
+            card.addEventListener('click', () => {
+                currentLevel = i;
+                startLevel();
+            });
+            levelGrid.appendChild(card);
+        }
+
+        function startLevel() {
+            isInMenu = false;
+            lives = 3;
+            gameWon = false;
+            gameOver = false;
+            levelCleared = false;
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('win-screen').style.display = 'none';
+            document.getElementById('lose-screen').style.display = 'none';
+            document.getElementById('next-level-screen').style.display = 'none';
+            setupLevel();
+        }
 
         function setupLevel() {
             const groundY = VIEW_HEIGHT - 65;
             
-            // Настройка длины в зависимости от уровня
-            if (currentLevel === 1) levelLength = 4500;
-            if (currentLevel === 2) levelLength = 6000;
-            if (currentLevel === 3) levelLength = 7500;
+            // Длинные уровни (от 6500 до 9500 пикселей)
+            levelLength = 6000 + (currentLevel * 750);
 
-            // Земля
             platforms = [
                 { x: 0, y: groundY, width: levelLength, height: 65, type: 'ground' }
             ];
 
-            // Генерируем платформы и врагов в зависимости от уровня
             enemies = [];
             
-            let pCount = Math.floor(levelLength / 260);
+            let pCount = Math.floor(levelLength / 240);
             for (let i = 1; i <= pCount; i++) {
-                let px = 320 + (i * 260) + (Math.random() * 60 - 30);
-                let pWidth = 130 + Math.random() * 40;
+                let px = 300 + (i * 240) + (Math.random() * 50 - 25);
+                let pWidth = 120 + Math.random() * 45;
                 let pHeight = 22;
-                let py = VIEW_HEIGHT - 150 - (i % 2 === 0 ? 60 : 0) - (Math.random() * 20);
+                let py = VIEW_HEIGHT - 150 - (i % 2 === 0 ? 65 : 0) - (Math.random() * 25);
                 
                 platforms.push({ x: px, y: py, width: pWidth, height: pHeight, type: 'brick' });
 
-                // Добавляем врагов на каждую вторую-третью платформу или на землю
                 if (i % 2 === 0) {
                     enemies.push({
-                        x: px + 20,
+                        x: px + 15,
                         y: py - 30,
                         width: 32,
                         height: 30,
-                        speed: 1.4 + currentLevel * 0.3,
+                        speed: 1.5 + currentLevel * 0.25,
                         minX: px,
                         maxX: px + pWidth - 32,
                         dir: 1
@@ -300,16 +391,16 @@
                 }
             }
 
-            // Добавим врагов на землю
-            for (let gx = 500; gx < levelLength - 500; gx += 700) {
+            // Дополнительные враги на земле
+            for (let gx = 450; gx < levelLength - 500; gx += 550) {
                 enemies.push({
                     x: gx,
                     y: groundY - 30,
                     width: 32,
                     height: 30,
-                    speed: 1.5 + currentLevel * 0.2,
-                    minX: gx - 120,
-                    maxX: gx + 150,
+                    speed: 1.6 + currentLevel * 0.2,
+                    minX: gx - 100,
+                    maxX: gx + 130,
                     dir: 1
                 });
             }
@@ -323,7 +414,7 @@
             player.dy = 0;
 
             document.getElementById('levelTitle').innerText = levelThemes[currentLevel].name;
-            document.getElementById('levelIndicator').innerText = `Ур. ${currentLevel}/3`;
+            document.getElementById('levelIndicator').innerText = `Ур. ${currentLevel}/5`;
             updateHeartsUI();
         }
 
@@ -358,13 +449,18 @@
         bindTouch('rightBtn', 'ArrowRight');
         bindTouch('jumpBtn', 'Space');
 
-        document.getElementById('winRestart').addEventListener('click', () => {
-            currentLevel = 1;
-            lives = 3;
-            gameWon = false;
-            gameOver = false;
+        document.getElementById('openMenuBtn').addEventListener('click', () => {
+            isInMenu = true;
+            document.getElementById('main-menu').style.display = 'flex';
             document.getElementById('win-screen').style.display = 'none';
-            setupLevel();
+            document.getElementById('lose-screen').style.display = 'none';
+            document.getElementById('next-level-screen').style.display = 'none';
+        });
+
+        document.getElementById('winRestart').addEventListener('click', () => {
+            isInMenu = true;
+            document.getElementById('win-screen').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'flex';
         });
 
         document.getElementById('loseRestart').addEventListener('click', () => {
@@ -384,7 +480,7 @@
         let cameraX = 0;
 
         function update() {
-            if (gameWon || gameOver || levelCleared) return;
+            if (isInMenu || gameWon || gameOver || levelCleared) return;
 
             if (invulnerableTimer > 0) invulnerableTimer--;
 
@@ -445,14 +541,14 @@
                     player.y < en.y + en.height &&
                     player.y + player.height > en.y
                 ) {
-                    if (player.dy > 0 && player.y + player.height - player.dy <= en.y + 12) {
+                    if (player.dy > 0 && player.y + player.height - player.dy <= en.y + 14) {
                         enemies.splice(enemies.indexOf(en), 1);
                         player.dy = -10;
                     } else {
                         if (invulnerableTimer === 0) {
                             lives--;
                             updateHeartsUI();
-                            invulnerableTimer = 60; // 1 секунда бессмертия после удара
+                            invulnerableTimer = 60;
                             player.dy = -8;
                             if (lives <= 0) {
                                 gameOver = true;
@@ -477,9 +573,9 @@
                 player.y < flag.y + flag.height &&
                 player.y + player.height > flag.y
             ) {
-                if (currentLevel < 3) {
+                if (currentLevel < 5) {
                     levelCleared = true;
-                    document.getElementById('nextLevelText').innerText = `Ты успешно прошла уровень ${currentLevel}! Впереди следующий этап.`;
+                    document.getElementById('nextLevelText').innerText = `Ты успешно прошла главу ${currentLevel}! Впереди следующий этап.`;
                     document.getElementById('next-level-screen').style.display = 'flex';
                 } else {
                     gameWon = true;
@@ -502,6 +598,11 @@
             skyGradient.addColorStop(1, theme.sky3);
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
+
+            if (isInMenu) {
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                return;
+            }
 
             ctx.save();
             ctx.translate(-cameraX, 0);
@@ -535,7 +636,7 @@
                 }
             });
 
-            // Враги (разные для каждого уровня)
+            // Враги разных видов для каждой главы
             enemies.forEach(en => {
                 if (currentLevel === 1) {
                     // Жучок
@@ -552,17 +653,31 @@
                     ctx.fillStyle = '#ffb703';
                     ctx.fillRect(en.x + 6, en.y + 2, 8, 8);
                     ctx.fillRect(en.x + 18, en.y + 2, 8, 8);
-                } else {
+                } else if (currentLevel === 3) {
                     // Призрак
                     ctx.fillStyle = '#9b5de5';
                     ctx.beginPath();
                     ctx.arc(en.x + en.width/2, en.y + 12, 15, Math.PI, 0, false);
                     ctx.fill();
                     ctx.fillRect(en.x + 2, en.y + 12, 28, 16);
+                } else if (currentLevel === 4) {
+                    // Гриб-злодей
+                    ctx.fillStyle = '#38b000';
+                    ctx.beginPath();
+                    ctx.arc(en.x + en.width/2, en.y + 12, 16, Math.PI, 0, false);
+                    ctx.fill();
+                    ctx.fillStyle = '#ccff33';
+                    ctx.fillRect(en.x + 8, en.y + 12, 16, 16);
+                } else {
+                    // Шипастый шар
+                    ctx.fillStyle = '#ff0054';
+                    ctx.beginPath();
+                    ctx.arc(en.x + en.width/2, en.y + 15, 15, 0, Math.PI * 2);
+                    ctx.fill();
                 }
                 ctx.fillStyle = '#000';
-                ctx.fillRect(en.x + 8, en.y + 16, 3, 4);
-                ctx.fillRect(en.x + 20, en.y + 16, 3, 4);
+                ctx.fillRect(en.x + 9, en.y + 14, 3, 4);
+                ctx.fillRect(en.x + 20, en.y + 14, 3, 4);
             });
 
             // Замок финиша
@@ -573,7 +688,7 @@
             ctx.font = '42px sans-serif';
             ctx.fillText('💖', flag.x + 2, flag.y - 50);
 
-            // Персонаж (Шахина) — мигает при бессмертии после удара
+            // Персонаж (Шахина)
             if (invulnerableTimer === 0 || Math.floor(invulnerableTimer / 5) % 2 === 0) {
                 const px = player.x;
                 const py = player.y;
