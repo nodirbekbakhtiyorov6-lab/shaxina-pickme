@@ -31,8 +31,10 @@
         }
 
         header {
-            text-align: center;
-            padding: 8px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
             background: rgba(15, 14, 23, 0.95);
             z-index: 5;
             flex-shrink: 0;
@@ -40,9 +42,26 @@
 
         h1 {
             margin: 0;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #ff8fab;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hud-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .level-indicator {
+            font-size: 0.85rem;
+            color: #ffb703;
+            font-weight: bold;
+        }
+
+        .hearts {
+            font-size: 1.1rem;
+            letter-spacing: 2px;
         }
 
         #game-container {
@@ -108,7 +127,7 @@
             font-size: 1.05rem;
         }
 
-        /* Экраны победы/поражения */
+        /* Экраны победы/поражения/перехода */
         .screen {
             display: none;
             position: absolute;
@@ -158,21 +177,31 @@
 <body>
 
     <header>
-        <h1>Пройди долгий путь к моему сердечку! 👑💖</h1>
+        <h1 id="levelTitle">Уровень 1: Солнечная поляна</h1>
+        <div class="hud-info">
+            <div class="level-indicator" id="levelIndicator">Ур. 1/3</div>
+            <div class="hearts" id="heartsDisplay">❤️❤️❤️</div>
+        </div>
     </header>
 
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
 
         <div id="win-screen" class="screen">
-            <h2>Ура, ты победила! 🎉</h2>
-            <p>Ты у меня самая лучшая Шахина, принцесса моя всегда будь такой маленькой пикми ❤️</p>
-            <button class="restart-btn" id="winRestart">Сыграть еще раз</button>
+            <h2>Ура, абсолютная победа! 🎉</h2>
+            <p>Ты прошла все три уровня и добралась до сердечка! Шахина — самая крутая принцесса и пикми ❤️👑</p>
+            <button class="restart-btn" id="winRestart">Сыграть сначала</button>
+        </div>
+
+        <div id="next-level-screen" class="screen">
+            <h2>Уровень пройден! ✨</h2>
+            <p id="nextLevelText">Готова к следующему испытанию?</p>
+            <button class="restart-btn" id="nextLevelBtn">Следующий уровень</button>
         </div>
 
         <div id="lose-screen" class="screen">
-            <h2>Ой-ой, упс! 🙈</h2>
-            <p>Ничего страшного, настоящие принцессы проходят через любые преграды! Давай попробуем еще разок?</p>
+            <h2>Ой-ой, сердечки кончились! 🙈</h2>
+            <p>Ничего страшного, давай попробуем пройти этот уровень снова с новыми силами!</p>
             <button class="restart-btn" id="loseRestart">Попробовать снова</button>
         </div>
     </div>
@@ -189,7 +218,6 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Умеренное разрешение для идеального масштаба персонажа и платформ
         const VIEW_WIDTH = 680;
         let VIEW_HEIGHT = 440;
 
@@ -197,12 +225,16 @@
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
             VIEW_HEIGHT = VIEW_WIDTH * (canvas.height / canvas.width);
-            setupPositions();
+            setupLevel();
         }
         window.addEventListener('resize', resizeCanvas);
 
+        let currentLevel = 1;
+        let lives = 3;
         let gameWon = false;
         let gameOver = false;
+        let levelCleared = false;
+        let invulnerableTimer = 0; // Защита от мгновенной потери всех жизней при ударе
 
         const player = {
             x: 80,
@@ -217,72 +249,93 @@
             grounded: false
         };
 
-        const platforms = [
-            { x: 0, y: 0, width: 3800, height: 65, type: 'ground' },
-            { x: 350, y: 0, width: 150, height: 22, type: 'brick' },
-            { x: 580, y: 0, width: 140, height: 22, type: 'brick' },
-            { x: 820, y: 0, width: 160, height: 22, type: 'brick' },
-            { x: 1080, y: 0, width: 150, height: 22, type: 'brick' },
-            { x: 1340, y: 0, width: 140, height: 22, type: 'brick' },
-            { x: 1600, y: 0, width: 160, height: 22, type: 'brick' },
-            { x: 1880, y: 0, width: 150, height: 22, type: 'brick' },
-            { x: 2140, y: 0, width: 140, height: 22, type: 'brick' },
-            { x: 2400, y: 0, width: 160, height: 22, type: 'brick' },
-            { x: 2680, y: 0, width: 170, height: 22, type: 'brick' },
-            { x: 2960, y: 0, width: 180, height: 22, type: 'brick' }
-        ];
+        let platforms = [];
+        let enemies = [];
+        let flag = { x: 0, y: 0, width: 50, height: 100 };
+        let levelLength = 5000; // Увеличенная длина уровней
 
-        let enemies = [
-            { x: 380, y: 0, width: 32, height: 30, speed: 1.6, minX: 350, maxX: 460, dir: 1 },
-            { x: 860, y: 0, width: 32, height: 30, speed: 1.9, minX: 820, maxX: 950, dir: 1 },
-            { x: 1120, y: 0, width: 32, height: 30, speed: 1.3, minX: 1080, maxX: 1200, dir: 1 },
-            { x: 1400, y: 0, width: 32, height: 30, speed: 2.1, minX: 1340, maxX: 1450, dir: 1 },
-            { x: 1940, y: 0, width: 32, height: 30, speed: 1.7, minX: 1880, maxX: 2000, dir: 1 },
-            { x: 2460, y: 0, width: 32, height: 30, speed: 1.5, minX: 2400, maxX: 2530, dir: 1 },
-            { x: 3020, y: 0, width: 32, height: 30, speed: 1.4, minX: 2960, maxX: 3110, dir: 1 }
-        ];
-
-        const flag = {
-            x: 3400,
-            y: 0,
-            width: 50,
-            height: 100
+        const levelThemes = {
+            1: { name: "Уровень 1: Солнечная поляна", sky1: "#2b2d42", sky2: "#3a86ff", sky3: "#8338ec", ground1: "#1b4332", ground2: "#2d6a4f", brick: "#cc5803", enemyName: "жучок" },
+            2: { name: "Уровень 2: Закатный каньон", sky1: "#4a154b", sky2: "#e07a5f", sky3: "#f4a261", ground1: "#6b705c", ground2: "#a5a58d", brick: "#bc6c25", enemyName: "краб" },
+            3: { name: "Уровень 3: Ночной замок", sky1: "#0b090a", sky2: "#161a1d", sky3: "#370617", ground1: "#212529", ground2: "#343a40", brick: "#7209b7", enemyName: "призрак" }
         };
 
-        function setupPositions() {
+        function setupLevel() {
             const groundY = VIEW_HEIGHT - 65;
-            platforms[0].y = groundY;
-            platforms[0].height = 65;
+            
+            // Настройка длины в зависимости от уровня
+            if (currentLevel === 1) levelLength = 4500;
+            if (currentLevel === 2) levelLength = 6000;
+            if (currentLevel === 3) levelLength = 7500;
 
-            // Комфортные низкие платформы
-            platforms[1].y = VIEW_HEIGHT - 160;
-            platforms[2].y = VIEW_HEIGHT - 215;
-            platforms[3].y = VIEW_HEIGHT - 160;
-            platforms[4].y = VIEW_HEIGHT - 215;
-            platforms[5].y = VIEW_HEIGHT - 160;
-            platforms[6].y = VIEW_HEIGHT - 220;
-            platforms[7].y = VIEW_HEIGHT - 160;
-            platforms[8].y = VIEW_HEIGHT - 215;
-            platforms[9].y = VIEW_HEIGHT - 160;
-            platforms[10].y = VIEW_HEIGHT - 215;
-            platforms[11].y = VIEW_HEIGHT - 160;
+            // Земля
+            platforms = [
+                { x: 0, y: groundY, width: levelLength, height: 65, type: 'ground' }
+            ];
 
-            enemies[0].y = groundY - 30;
-            enemies[1].y = groundY - 30;
-            enemies[2].y = platforms[4].y - 30;
-            enemies[3].y = groundY - 30;
-            enemies[4].y = groundY - 30;
-            enemies[5].y = groundY - 30;
-            enemies[6].y = groundY - 30;
+            // Генерируем платформы и врагов в зависимости от уровня
+            enemies = [];
+            
+            let pCount = Math.floor(levelLength / 260);
+            for (let i = 1; i <= pCount; i++) {
+                let px = 320 + (i * 260) + (Math.random() * 60 - 30);
+                let pWidth = 130 + Math.random() * 40;
+                let pHeight = 22;
+                let py = VIEW_HEIGHT - 150 - (i % 2 === 0 ? 60 : 0) - (Math.random() * 20);
+                
+                platforms.push({ x: px, y: py, width: pWidth, height: pHeight, type: 'brick' });
 
+                // Добавляем врагов на каждую вторую-третью платформу или на землю
+                if (i % 2 === 0) {
+                    enemies.push({
+                        x: px + 20,
+                        y: py - 30,
+                        width: 32,
+                        height: 30,
+                        speed: 1.4 + currentLevel * 0.3,
+                        minX: px,
+                        maxX: px + pWidth - 32,
+                        dir: 1
+                    });
+                }
+            }
+
+            // Добавим врагов на землю
+            for (let gx = 500; gx < levelLength - 500; gx += 700) {
+                enemies.push({
+                    x: gx,
+                    y: groundY - 30,
+                    width: 32,
+                    height: 30,
+                    speed: 1.5 + currentLevel * 0.2,
+                    minX: gx - 120,
+                    maxX: gx + 150,
+                    dir: 1
+                });
+            }
+
+            flag.x = levelLength - 400;
             flag.y = groundY - 100;
 
-            if (player.y === 0) {
-                player.y = groundY - player.height;
-            }
+            player.x = 80;
+            player.y = groundY - player.height;
+            player.dx = 0;
+            player.dy = 0;
+
+            document.getElementById('levelTitle').innerText = levelThemes[currentLevel].name;
+            document.getElementById('levelIndicator').innerText = `Ур. ${currentLevel}/3`;
+            updateHeartsUI();
         }
 
         resizeCanvas();
+
+        function updateHeartsUI() {
+            let hStr = '';
+            for (let i = 0; i < 3; i++) {
+                hStr += i < lives ? '❤️' : '🖤';
+            }
+            document.getElementById('heartsDisplay').innerText = hStr;
+        }
 
         const keys = {};
         window.addEventListener('keydown', e => { keys[e.code] = true; });
@@ -305,13 +358,35 @@
         bindTouch('rightBtn', 'ArrowRight');
         bindTouch('jumpBtn', 'Space');
 
-        document.getElementById('winRestart').addEventListener('click', restartGame);
-        document.getElementById('loseRestart').addEventListener('click', restartGame);
+        document.getElementById('winRestart').addEventListener('click', () => {
+            currentLevel = 1;
+            lives = 3;
+            gameWon = false;
+            gameOver = false;
+            document.getElementById('win-screen').style.display = 'none';
+            setupLevel();
+        });
+
+        document.getElementById('loseRestart').addEventListener('click', () => {
+            lives = 3;
+            gameOver = false;
+            document.getElementById('lose-screen').style.display = 'none';
+            setupLevel();
+        });
+
+        document.getElementById('nextLevelBtn').addEventListener('click', () => {
+            levelCleared = false;
+            document.getElementById('next-level-screen').style.display = 'none';
+            currentLevel++;
+            setupLevel();
+        });
 
         let cameraX = 0;
 
         function update() {
-            if (gameWon || gameOver) return;
+            if (gameWon || gameOver || levelCleared) return;
+
+            if (invulnerableTimer > 0) invulnerableTimer--;
 
             player.dx = 0;
             if (keys['ArrowLeft'] || keys['KeyA']) player.dx = -player.speed;
@@ -374,66 +449,84 @@
                         enemies.splice(enemies.indexOf(en), 1);
                         player.dy = -10;
                     } else {
-                        gameOver = true;
-                        document.getElementById('lose-screen').style.display = 'flex';
+                        if (invulnerableTimer === 0) {
+                            lives--;
+                            updateHeartsUI();
+                            invulnerableTimer = 60; // 1 секунда бессмертия после удара
+                            player.dy = -8;
+                            if (lives <= 0) {
+                                gameOver = true;
+                                document.getElementById('lose-screen').style.display = 'flex';
+                            }
+                        }
                     }
                 }
             });
 
             if (player.y > VIEW_HEIGHT + 100) {
+                lives = 0;
+                updateHeartsUI();
                 gameOver = true;
                 document.getElementById('lose-screen').style.display = 'flex';
             }
 
+            // Финиш уровня
             if (
                 player.x < flag.x + flag.width &&
                 player.x + player.width > flag.x &&
                 player.y < flag.y + flag.height &&
                 player.y + player.height > flag.y
             ) {
-                gameWon = true;
-                document.getElementById('win-screen').style.display = 'flex';
+                if (currentLevel < 3) {
+                    levelCleared = true;
+                    document.getElementById('nextLevelText').innerText = `Ты успешно прошла уровень ${currentLevel}! Впереди следующий этап.`;
+                    document.getElementById('next-level-screen').style.display = 'flex';
+                } else {
+                    gameWon = true;
+                    document.getElementById('win-screen').style.display = 'flex';
+                }
             }
 
             cameraX = player.x - VIEW_WIDTH * 0.3;
             if (cameraX < 0) cameraX = 0;
-            if (cameraX > 3800 - VIEW_WIDTH) cameraX = 3800 - VIEW_WIDTH;
+            if (cameraX > levelLength - VIEW_WIDTH) cameraX = levelLength - VIEW_WIDTH;
         }
 
         function draw() {
             ctx.setTransform(canvas.width / VIEW_WIDTH, 0, 0, canvas.height / VIEW_HEIGHT, 0, 0);
 
+            const theme = levelThemes[currentLevel];
             let skyGradient = ctx.createLinearGradient(0, 0, 0, VIEW_HEIGHT);
-            skyGradient.addColorStop(0, '#2b2d42');
-            skyGradient.addColorStop(0.5, '#3a86ff');
-            skyGradient.addColorStop(1, '#8338ec');
+            skyGradient.addColorStop(0, theme.sky1);
+            skyGradient.addColorStop(0.5, theme.sky2);
+            skyGradient.addColorStop(1, theme.sky3);
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
 
             ctx.save();
             ctx.translate(-cameraX, 0);
 
-            // Облака на нормальной высоте
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-            for (let i = 120; i < 3800; i += 280) {
+            // Облака
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            for (let i = 120; i < levelLength; i += 300) {
                 ctx.beginPath();
-                ctx.arc(i, 140, 40, 0, Math.PI * 2);
-                ctx.arc(i + 35, 120, 55, 0, Math.PI * 2);
-                ctx.arc(i + 85, 140, 40, 0, Math.PI * 2);
+                ctx.arc(i, 130, 40, 0, Math.PI * 2);
+                ctx.arc(i + 35, 110, 55, 0, Math.PI * 2);
+                ctx.arc(i + 85, 130, 40, 0, Math.PI * 2);
                 ctx.fill();
             }
 
             // Платформы
             platforms.forEach(p => {
                 if (p.type === 'ground') {
-                    ctx.fillStyle = '#1b4332';
+                    ctx.fillStyle = theme.ground1;
                     ctx.fillRect(p.x, p.y, p.width, p.height);
-                    ctx.fillStyle = '#2d6a4f';
+                    ctx.fillStyle = theme.ground2;
                     ctx.fillRect(p.x, p.y, p.width, 16);
                     ctx.fillStyle = '#52b788';
                     ctx.fillRect(p.x, p.y, p.width, 5);
                 } else {
-                    ctx.fillStyle = '#cc5803';
+                    ctx.fillStyle = theme.brick;
                     ctx.fillRect(p.x, p.y, p.width, p.height);
                     ctx.fillStyle = '#e85d04';
                     ctx.fillRect(p.x, p.y, p.width, 8);
@@ -442,17 +535,34 @@
                 }
             });
 
-            // Враги
+            // Враги (разные для каждого уровня)
             enemies.forEach(en => {
-                ctx.fillStyle = '#d90429';
-                ctx.beginPath();
-                ctx.arc(en.x + en.width/2, en.y + 14, 16, Math.PI, 0, false);
-                ctx.fill();
-                ctx.fillStyle = '#ffccd5';
-                ctx.fillRect(en.x + 5, en.y + 14, 22, 16);
+                if (currentLevel === 1) {
+                    // Жучок
+                    ctx.fillStyle = '#d90429';
+                    ctx.beginPath();
+                    ctx.arc(en.x + en.width/2, en.y + 14, 16, Math.PI, 0, false);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffccd5';
+                    ctx.fillRect(en.x + 5, en.y + 14, 22, 16);
+                } else if (currentLevel === 2) {
+                    // Краб
+                    ctx.fillStyle = '#fb8500';
+                    ctx.fillRect(en.x + 2, en.y + 8, 28, 20);
+                    ctx.fillStyle = '#ffb703';
+                    ctx.fillRect(en.x + 6, en.y + 2, 8, 8);
+                    ctx.fillRect(en.x + 18, en.y + 2, 8, 8);
+                } else {
+                    // Призрак
+                    ctx.fillStyle = '#9b5de5';
+                    ctx.beginPath();
+                    ctx.arc(en.x + en.width/2, en.y + 12, 15, Math.PI, 0, false);
+                    ctx.fill();
+                    ctx.fillRect(en.x + 2, en.y + 12, 28, 16);
+                }
                 ctx.fillStyle = '#000';
-                ctx.fillRect(en.x + 9, en.y + 18, 3, 4);
-                ctx.fillRect(en.x + 20, en.y + 18, 3, 4);
+                ctx.fillRect(en.x + 8, en.y + 16, 3, 4);
+                ctx.fillRect(en.x + 20, en.y + 16, 3, 4);
             });
 
             // Замок финиша
@@ -463,37 +573,39 @@
             ctx.font = '42px sans-serif';
             ctx.fillText('💖', flag.x + 2, flag.y - 50);
 
-            // Персонаж (Шахина)
-            const px = player.x;
-            const py = player.y;
+            // Персонаж (Шахина) — мигает при бессмертии после удара
+            if (invulnerableTimer === 0 || Math.floor(invulnerableTimer / 5) % 2 === 0) {
+                const px = player.x;
+                const py = player.y;
 
-            // Платье
-            ctx.fillStyle = '#ff3366';
-            ctx.fillRect(px + 6, py + 22, player.width - 12, player.height - 22);
-            ctx.fillStyle = '#ff668a';
-            ctx.fillRect(px + 2, py + 45, player.width - 4, 11);
+                // Платье
+                ctx.fillStyle = '#ff3366';
+                ctx.fillRect(px + 6, py + 22, player.width - 12, player.height - 22);
+                ctx.fillStyle = '#ff668a';
+                ctx.fillRect(px + 2, py + 45, player.width - 4, 11);
 
-            // Волосы
-            ctx.fillStyle = '#ffb703';
-            ctx.fillRect(px + 6, py + 4, player.width - 12, 20);
+                // Волосы
+                ctx.fillStyle = '#ffb703';
+                ctx.fillRect(px + 6, py + 4, player.width - 12, 20);
 
-            // Лицо
-            ctx.fillStyle = '#ffe5ec';
-            ctx.fillRect(px + 9, py + 9, player.width - 18, 13);
-            ctx.fillStyle = '#2b2d42';
-            ctx.fillRect(px + 12, py + 13, 3, 4);
-            ctx.fillRect(px + 25, py + 13, 3, 4);
+                // Лицо
+                ctx.fillStyle = '#ffe5ec';
+                ctx.fillRect(px + 9, py + 9, player.width - 18, 13);
+                ctx.fillStyle = '#2b2d42';
+                ctx.fillRect(px + 12, py + 13, 3, 4);
+                ctx.fillRect(px + 25, py + 13, 3, 4);
 
-            // Корона
-            ctx.fillStyle = '#ffbc42';
-            ctx.beginPath();
-            ctx.moveTo(px + 6, py + 4);
-            ctx.lineTo(px + 12, py - 5);
-            ctx.lineTo(px + 20, py + 3);
-            ctx.lineTo(px + 28, py - 5);
-            ctx.lineTo(px + 34, py + 4);
-            ctx.closePath();
-            ctx.fill();
+                // Корона
+                ctx.fillStyle = '#ffbc42';
+                ctx.beginPath();
+                ctx.moveTo(px + 6, py + 4);
+                ctx.lineTo(px + 12, py - 5);
+                ctx.lineTo(px + 20, py + 3);
+                ctx.lineTo(px + 28, py - 5);
+                ctx.lineTo(px + 34, py + 4);
+                ctx.closePath();
+                ctx.fill();
+            }
 
             ctx.restore();
             ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -503,21 +615,6 @@
             update();
             draw();
             requestAnimationFrame(loop);
-        }
-
-        function restartGame() {
-            gameWon = false;
-            gameOver = false;
-            player.x = 80;
-            player.y = platforms[0].y - player.height;
-            player.dx = 0;
-            player.dy = 0;
-            keys['ArrowLeft'] = false;
-            keys['ArrowRight'] = false;
-            keys['Space'] = false;
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('pressed'));
-            document.getElementById('win-screen').style.display = 'none';
-            document.getElementById('lose-screen').style.display = 'none';
         }
 
         loop();
